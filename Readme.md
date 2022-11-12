@@ -1,7 +1,7 @@
 # ISMtools for using ISM REST API
 
 Here are some basic scripts to use the REST API for Infrastructure Manager (ISM)  
-The number of tools/scripts will increase over time ...
+The number of tools/scripts will increase over time .....
 
 This toolset is provided W/O ANY WARRANTY and use at your own risk!  
 
