@@ -1,6 +1,6 @@
 #!/bin/bash
 # (c) Juergen Orth ;-)
-# $Id: ism_cmd 93 2022-05-25 08:00:34Z HMBJOrth $
+# $Id: ism_cmd 118 2022-11-13 08:42:45Z HMBJOrth $
 
 [ "$DEBUG" ] && set -x
 
@@ -13,7 +13,7 @@ PROG=${0##*/}
 METHOD=${1:-GET}
 CMD=${2:-'nodes'}; shift 2
 
-[ -r "$CACERT" ] && CERTOPT="--cacert $CACERT" || { CERTOPT="-k"; echo "unsecure mode!" >&2; }
+[ -r "$CACERT" ] && CERTOPT="--cacert $CACERT" || { CERTOPT="-k"; [ "$WARNING" ] && echo "unsecure mode!" >&2; }
 
 if [ "$session_id" ]
 then
@@ -23,5 +23,5 @@ else
 	# w/o Session ID = One Time Authorization
 	AUTH="Authorization: ISM $(openssl enc -aes-256-cbc -e -base64 -pass pass:$ISM_IP -A -md md5 <<<$USER:$PASSWD 2>/dev/null)"
 fi
-curl "https://$ISM_FQDN:$ISM_PORT/ism/api/v2/$CMD" -X ${METHOD^^} -H "$AUTH" -H "Content-Type: application/JSON; charset=UTF-8" $CERTOPT $DEFAULTOPTIONS $@ 
+curl "https://$ISM_FQDN:$ISM_PORT/ism/api/v2/$CMD" -X ${METHOD^^} -H "$AUTH" -H "Content-Type: application/JSON; charset=UTF-8" $CERTOPT $DEFAULTOPTIONS "$@"
 echo
