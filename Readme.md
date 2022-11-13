@@ -22,10 +22,10 @@ To use this toolset run the following steps:
 ### 1. Clone the repository
 
 ```shell
-$ git clone https://github.com/JuergenOrth/ISMtools.git
+$ git clone https://github.com/fujitsu/ISMtools.git
 $ cd ISMtools
 ```
-or extract this [ZIP file](https://github.com/JuergenOrth/ISMtools/archive/refs/heads/master.zip).
+or extract this [ZIP file](https://github.com/fujitsu/ISMtools/archive/refs/heads/master.zip).
 
 ### 2. Edit the configfile
 
