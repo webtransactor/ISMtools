@@ -10,7 +10,7 @@ ifdef::env-github[]
 :important-caption: :heavy_exclamation_mark:
 :caution-caption: :fire:
 :warning-caption: :warning:
-:imagesdir: https://raw.githubusercontent.com/fujitsu/ISMtools/main/img/
+:imagesdir: https://github.com/fujitsu/ISMtools/blob/master/img/
 endif::[]
 = ISMtools {version}
 
