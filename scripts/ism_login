@@ -1,0 +1,11 @@
+#!/bin/bash
+# (c) Juergen Orth ;-)
+# $Id: ism_login 152 2022-12-18 12:03:18Z HMBJOrth $
+# for documentation see https://github.com/fujitsu/ISMtools
+
+. ${0%/*}/.ism_env
+
+CheckJQ
+
+enc_passwd=$(ism_enc_pw "${ISM_USER#*:}")
+ism_cmd post users/login -d "{ \"IsmBody\": { \"UserName\" : \"${ISM_USER%:*}\", \"Password\": \"${enc_passwd}\"}}" | jq -r '"export ISM_session=\(.IsmBody.Auth)"'

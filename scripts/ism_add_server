@@ -1,0 +1,75 @@
+#!/bin/bash
+# (c) Juergen Orth ;-)
+# $Id: ism_add_server 162 2023-01-05 17:56:44Z HMBJOrth $
+# for documentation see https://github.com/fujitsu/ISMtools
+
+. ${0%/*}/.ism_env
+
+CheckJQ
+
+# Format of CSVFILE
+# MODEL;NAME;DESC;IP;USER;PW;RACKID;POS;HE;TAGS
+CSVFILE=${1:-$DIR/ism_nodes.csv}
+
+GenTags() { # tag ..
+	printf '"NodeTagList":['  
+	for ((i=1;i<=$#;i++))
+	do
+		eval tag=\$$i
+		printf '{"NodeTag":"%s"' $tag
+		[ $# -eq $i ] && comma=" " || comma=","
+		printf '}%s' "$comma"
+	done
+	printf ']'
+}
+
+[ "$DEBUG" -ge 2 ] && set -x
+debugmsg 1 Inputfile is $CSVFILE
+IFS=';'
+egrep -v "^([\s])*($|#)" $CSVFILE | \
+while read MODEL NAME DESC SERVER USER PW RACK POS HE TAGS
+do
+	[ "${MODEL^^}" = MODEL ] && continue	# skip title line
+	EPW=$(ism_enc_pw $PW)
+	showinfo -n "Registering node $SERVER ..."
+	RESULT=$(ism_cmd post nodes -d '
+	{
+	  "IsmBody": {
+	    "Node": {
+	      "Name": "'$NAME'",
+	      "Description": "'"$DESC"'",
+	      "IpVersion": "V4",
+	      "RackInfo": {
+		"Position": '$POS',
+		"RackId": '$RACK',
+		"OccupySize": '$HE' 
+	      },
+	      "Accounts": [
+		{
+		  "PortNum": null,
+		  "AccountType": "Ipmi",
+		  "AccountName": "'$USER'",
+		  "Password": "'$EPW'"
+		}
+	      ],
+	      '$(eval GenTags $TAGS)',
+	      "IpAddress": "'$SERVER'",
+	      "WebUrl": "https://'$SERVER'",
+	      "Type": "server",
+	      "Model": "'"$MODEL"'"
+	    }
+	  }
+	}' | jq -r '.MessageInfo[0].Message')
+	if [ "$RESULT" = null ]
+	then 
+		echo OK
+		NODE=$(ism_get_nodeid $SERVER)
+		showinfo -n "BG-Retrieving information from NodeID $NODE ..."
+		ism_cmd post /nodes/$NODE/inventory/refresh >/dev/null & 
+		echo "PID=$!"
+	else
+		echo Error
+		error 0 $RESULT
+	fi
+	line 79
+done

@@ -1,0 +1,61 @@
+#!/bin/bash
+# (c) Juergen Orth ;-)
+# $Id: ism_get_sysrep 165 2023-01-06 12:23:08Z HMBJOrth $
+# for documentation see https://github.com/fujitsu/ISMtools
+
+. ${0%/*}/.ism_env
+
+[ "$1" ] || error 1 "One param is needed (IP, Name or S/N)!"
+irmc=$1
+
+showinfo Log in to ISM if necessary ...
+KEEPSESSION=false
+[ "$ISM_session" ] && KEEPSESSION=true || eval $(ism_login) 
+showinfo "   Session_Id=$ISM_session"
+
+showinfo Retrieving NodeId
+nodeid=$(ism_get_nodeid $irmc)
+[ "$nodeid" ] || error 1 "Node $irmc not found"
+showinfo "   NodeId=$nodeid for $irmc" 
+
+showinfo Start Systemreport generation
+taskid=$(ism_cmd POST nodes/logs/collection/collect -d '
+	{ "IsmBody":{ "Nodes":[{ "NodeId":'$nodeid'}]}}'|jq -r .IsmBody.TaskId)
+showinfo -n "   TaskId=$taskid - waiting for finishing "
+while [ "$(ism_cmd get tasks/$taskid | jq -r .IsmBody.Status)" == Running ] 
+do
+	echo -n .
+	sleep 5
+done
+echo
+showinfo $(ism_cmd get tasks/$taskid | jq -j '.IsmBody|.Status," ",.Result,"\n"')
+
+showinfo Creating Systemreport
+taskid=$(ism_cmd POST nodes/logs/archivedlog/downloadfiles/create -d '
+	{ "IsmBody":{ "Generation":{ "Nodes": [{ "NodeId":'$nodeid'}], "Generation": 1}, "PasswordEnable": 0}}'|jq -r .IsmBody.TaskId)
+
+showinfo -n "   TaskId=$taskid - waiting for finishing "
+while [ "$(ism_cmd get tasks/$taskid | jq -r .IsmBody.Status)" == Running ] 
+do
+	echo -n .
+	sleep 5
+done
+echo
+showinfo $(ism_cmd get tasks/$taskid | jq -j '.IsmBody|.Status," ",.Result,"\n"')
+
+showinfo Create ZIP file
+file=$(ism_cmd get nodes/logs/archivedlog/downloadfiles | jq -r .IsmBody.DownloadFiles.FileUrl)
+showinfo "   ZIP file=$file"
+
+showinfo Download ZIP file to $OUTPUTFILE
+>$OUTPUTFILE
+curl -o $OUTPUTFILE -k $CURLOPTIONS -b "X-Ism-Authorization=$ISM_session" $file
+SIZE=$(ls -lGh $OUTPUTFILE | awk '{print $4}')
+showinfo "Result file $OUTPUTFILE (Size=$SIZE / Type=ZIP)"
+
+if [ $KEEPSESSION == false ]
+then
+	showinfo "Logging out"
+	eval $(ism_logout)
+fi
+showinfo Finished

@@ -1,0 +1,37 @@
+#!/bin/bash
+# (c) Juergen Orth ;-)
+# $Id: ism_j2c 162 2023-01-05 17:56:44Z HMBJOrth $
+# for documentation see https://github.com/fujitsu/ISMtools
+
+. ${0%/*}/.ism_env
+
+CheckJQ
+
+MODE=${1^^}
+case ${MODE:-NODE} in
+	N*) 		headers='["Name","IpAddress","UniqInfo","NodeId","Status"]' ;;
+	T*) 		headers='["TimeStamp","Severity","TrapType","TrapMessage"]' ;;
+	E*) 		headers='["OccurrenceDate","Level","Type","Message"]' ;;
+	I*|F*|A*) 	headers='["ProductName","Manufacture","Name","SerialNumber"]' ;;
+	*)  		headers="$1" ;;
+esac
+
+debugmsg 1 "headers=$headers"
+[ "$PROG" = ism_j2c ] && filter='.IsmBody|.Nodes,.TrapLogs,.Logs' || filter='.'
+
+echo '"sep=,"'
+jq "$filter" | grep -v '^null$' |\
+	jq --argjson cols "$headers" -r '
+		def to_csv($headers):
+			def _object_to_csv:
+				($headers | @csv),
+				(.[] | [.[$headers[]]] | @csv);
+			def _array_to_csv:
+				($headers | @csv),
+				(.[][:$headers|length] | @csv);
+			if .[0]|type == "object"
+				then _object_to_csv
+				else _array_to_csv
+			end;
+		to_csv($cols)'
+

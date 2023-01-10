@@ -1,0 +1,51 @@
+#!/bin/bash
+# (c) Juergen Orth ;-)
+# $Id: ism_run_gfupdate 160 2022-12-21 16:16:17Z HMBJOrth $
+# for documentation see https://github.com/fujitsu/ISMtools
+#
+# ism_gfupdate - Update all firmware/driver from globalflash
+#
+# Can be used in crontab to periodically update ISM's internal repository.
+# GlobalFlash has to be activated on ISM_VA console first!
+#
+# If option "-s" is applied then this tool is running in SMART mode, 
+# which means that only firmware for your registered HW is downloaded.
+
+. ${0%/*}/.ism_env
+
+CheckJQ
+
+FWLIST=/tmp/fwlist.$$
+NFWLIST=/tmp/nfwlist.$$
+
+showinfo -n "Retrieving meta data - Please wait ~2 minutes ... "
+ism_cmd post system/settings/firmware/ftsfirmwarelist/download >/dev/null
+echo done
+
+showinfo "Saving meta data."
+ism_cmd get system/settings/firmware/ftsfirmwarelist | \
+	sed 's/"FirmwareList":/"ComponentList":/' | $JSON >$FWLIST
+
+if [ "$SMARTFLAG" -eq 1 ]
+then
+	showinfo "Smart filtering in progress. This takes some time ..."
+	(
+		head -5 $FWLIST
+		ism_list_firmware |\
+		jq -r '.IsmBody.Nodes[]|select(.Name=="Server")|.VariableData.Firmware[].Name' | sort -u | grep -v null |\
+		while read FW
+		do
+			debugmsg 1 Processing $FW
+			jq '.IsmBody.ComponentList[]|select(.FirmwareName=="'"$FW"'")' $FWLIST
+		done | sed 's/^}/},/' | sed '$ s/,//'
+		tail -3 $FWLIST
+	) | $JSON >$NFWLIST
+	
+else
+	cp $FWLIST $NFWLIST
+fi
+
+showinfo "Starting download of firmware/drivers ..."
+ism_cmd post system/settings/firmware/ftsfirmware/download -d @$NFWLIST | $JSON
+
+[ "$DEBUG" -eq 0 ] && { showinfo "Cleaning up."; rm $FWLIST $NFWLIST; }

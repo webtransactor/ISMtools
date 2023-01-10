@@ -1,0 +1,11 @@
+#!/bin/bash
+# (c) Juergen Orth ;-)
+# $Id: ism_chk_con 152 2022-12-18 12:03:18Z HMBJOrth $
+# for documentation see https://github.com/fujitsu/ISMtools
+
+. ${0%/*}/.ism_env
+
+ism_show_env
+ism_cmd get ismva/settings | $JSON | \
+	grep -q ISMVersion && { error 0 "Connection OK"; exit 0;} || error 1 "NO Connection"
+

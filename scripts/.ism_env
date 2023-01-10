@@ -1,0 +1,160 @@
+#!/bin/bash
+# (c) Juergen Orth ;-)
+# $Id: .ism_env 166 2023-01-10 11:23:42Z HMBJOrth $
+# for documentation see https://github.com/fujitsu/ISMtools
+#
+# Settings and tools for ISMtools based on bash and curl
+
+# IP, Name or FQDN of ISM VA with optional portnumber
+ISM_VA_DEFAULT=ism.customer.net
+# ISM VA default portnumber
+ISM_PORT_DEFAULT=25566
+# User and passwort. Format username:password
+ISM_USER_DEFAULT=administrator:admin
+# Debug settings: 0=none, 1=few, 2=more, 3=much more debug output
+DEBUG_DEFAULT=0
+
+# CERT file. Must not exist.
+CACERT=${0%/*}/DCMA.crt
+# Default options for cURL - --silent suppresses progress bar
+CURLOPTIONS="--silent"
+# LOGFILE: to see some log output of commands
+LOGFILE=/tmp/ISMtools-$$.log
+# OUTPUTFILE: to see some output of commands
+OUTPUTFILE=/tmp/ISMtools-$$.zip
+# TMPFILE: for temporary files
+TMPFILE=/tmp/ISMtools-$$
+
+##########################################################
+# Don't change lines below
+##########################################################
+
+# Define vars PROG, DIR and expand PATH to find subcommands
+PROG=${0##*/}
+DIR=${0%/*}; [ "$DIR" = bash ] && DIR=$PWD
+export PATH=$PATH:$DIR
+
+PARAMOPT=""
+OPTSTR="i:u:d:h"
+case $PROG in
+	ism_list_nodes)		PARAMOPT="[filter]";;
+        ism_get_sysrep) 	PARAMOPT="[-o <outputfile> ($OUTPUTFILE)] NodeName|NodeIP|NodeSN";OPTSTR="${OPTSTR}o:";;
+	ism_get_nodeid) 	PARAMOPT="NodeName|NodeIP|NodeSN";;
+	ism_run_gfupdate)	PARAMOPT="[-s]"; OPTSTR="${OPTSTR}s";;
+	ism_set_thresholds) 	PARAMOPT="[Warn [Critical [Filter]]]";;
+        *)              	PARAMOPT="";;
+esac
+
+# Display usage
+usage()
+{
+        echo "Usage: $PROG [-h (help)] [-i <ISM_VA> ($ISM_VA)] [-u <ISM_USER> ($ISM_USER)] [-d <DEBUG> ($DEBUG)] $PARAMOPT" >&2
+        exit 2
+}
+
+ISM_VA=${ISM_VA:-$ISM_VA_DEFAULT}
+ISM_USER=${ISM_USER:-$ISM_USER_DEFAULT}
+DEBUG=${DEBUG:-$DEBUG_DEFAULT}
+
+SMARTFLAG=""
+# Evaluate commandline parameters
+while getopts "$OPTSTR" OPT
+do
+        case $OPT in
+                i) ISM_VA=$OPTARG;;
+                u) ISM_USER=$OPTARG;;
+                d) DEBUG=$OPTARG;;
+		o) OUTPUTFILE=$OPTARG;;
+		s) SMARTFLAG=1;;
+                h) usage;;
+                ?) usage;;
+        esac
+done
+shift $(($OPTIND-1))
+
+# Append port if necessary
+[[ "$ISM_VA" =~ .*:.* ]] || ISM_VA=${ISM_VA}:$ISM_PORT_DEFAULT
+
+# Get IP/FQDN for ISM
+# IP needed for PW hash / FQDN might be needed for TLS
+if [[ "${ISM_VA%:*}" =~ ^[0-9]*\. ]] 
+then # ISM_VA looks like 192.168.47.11:25566
+	ISM_IP=${ISM_VA%:*}
+	ISM_FQDN=$ISM_IP
+	host $ISM_IP >/dev/null && \
+		ISM_FQDN=$(host -t A $ISM_IP | awk '/pointer/ {print $NF;exit;}')
+else # ISM_VA looks like myism.customer.net:443
+	ISM_FQDN=${ISM_VA%:*}
+	host $ISM_FQDN >/dev/null && \
+		ISM_IP=$(host -t A $ISM_FQDN | awk '/address/ {print $NF;exit;}') || \
+		echo invalid fqdn: $ISM_FQDN
+fi
+
+# Try to create readable output
+if [ -x "$(type -p jq)" ]
+then
+	JSON="jq ." 
+elif [ -x "$(type -p python)" ]
+then
+	JSON="python -m json.tool"
+elif [ -x "$(type -p python3)" ]
+then
+	JSON="python3 -m json.tool"
+else
+	JSON=cat
+fi
+
+export ISM_VA ISM_IP ISM_FQDN ISM_USER DEBUG CACERT CURLOPTIONS LOGFILE OUTPUTFILE TMPFILE
+
+# Some helper functions
+
+ism_enc_pw() { # password
+	echo -n "$1" | openssl enc -aes-256-cbc -e -base64 -pass pass:$ISM_IP -A -md md5 2>/dev/null
+}
+
+# Repeat char count times
+repeat() # count char
+{
+        printf "%${1}s" " " | tr " " "$2"
+}
+
+# Indent to level level
+indent() # level [blanks_per_level]
+{
+        repeat $(( $1 * ${2:-4} )) " "
+}
+
+# Draw a line with length count and opt. using char
+line() # count [char]
+{
+        repeat $1 "${2:--}"
+	echo
+}
+
+# Display timestamp and params
+showinfo() # [param ...]
+{
+        [ "$1" = "-n" ] && { nl=" ";shift;} || nl="\n"
+        msg=$(date "+%Y-%m-%d %H:%M:%S -- $*")
+        printf "%s$nl" "$msg"
+}
+
+# Output an error message on stderr and exit with given rc
+error() # rc [param ...]
+{
+        rc=$1
+        shift
+        showinfo $@ >&2
+        [ "$rc" -gt 0 ] && exit $rc
+}
+
+# Display debug info to stderr when debuglevel is appropriate
+debugmsg()
+{
+        [ $1 -le "$DEBUG" ] && showinfo debug $@ >&2
+}
+
+# Exit if jq is not available
+CheckJQ() {
+	[ -x "$(type -p jq)" ] || error 3 "ERROR: For $PROG the tool \"jq\" is required! Please install it first!"
+}

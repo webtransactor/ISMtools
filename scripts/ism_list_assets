@@ -1,0 +1,8 @@
+#!/bin/bash
+# (c) Juergen Orth ;-)
+# $Id: ism_list_assets 152 2022-12-18 12:03:18Z HMBJOrth $
+# for documentation see https://github.com/fujitsu/ISMtools
+
+. ${0%/*}/.ism_env
+
+ism_cmd get "nodes/inventory?level=All" | $JSON

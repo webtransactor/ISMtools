@@ -1,0 +1,55 @@
+#!/bin/bash
+# (c) Juergen Orth ;-)
+# $Id: ism_set_thresholds 160 2022-12-21 16:16:17Z HMBJOrth $
+# for documentation see https://github.com/fujitsu/ISMtools
+#
+# ism_setthresholds: Set upper warning and critical threshold for power consumption
+#
+
+. ${0%/*}/.ism_env
+
+CheckJQ
+
+upper_warning=${1:-300} upper_critical=${2:-400}
+filter="${3:-type=server&nodetag=powercheck}" 
+
+showinfo Log in to ISM if necessary ...
+KEEPSESSION=false
+[ "$ISM_session" ] && KEEPSESSION=true || eval $(ism_login)
+showinfo "   Session_Id=$ISM_session"
+
+>$LOGFILE
+showinfo "Using filter \"$filter\""
+showinfo -n "Setting upper power thresholds (${upper_warning}W/${upper_critical}W) to:"
+ism_cmd get "nodes?$filter" | jq -j '.IsmBody.Nodes[]|.Name," ",.NodeId,"\n"' |
+while read name id
+do
+  echo -n "${name%%.*} "
+  ItemId=$(ism_cmd get "nodes/monitor/items?NodeId=$id"|\
+    jq -r '.IsmBody.Items[]|
+      select(.ItemName=="Node PowerConsumption" and .IsActive=="Enabled")|.ItemId')
+  ism_cmd patch nodes/monitor/items/$ItemId -d '
+    { 
+      "IsmBody": {
+        "IsActive":"Enabled",
+        "IsThresholdMonitoringActive":"Enabled",
+	"UpperCritical": {
+          "Value":"'$upper_critical'",
+          "Severity":"Error"
+        },
+	"UpperWarning": {
+          "Value":"'$upper_warning'",
+          "Severity":"Warning"
+        },
+        "LowerCritical":null,
+        "LowerWarning":null
+      }
+    }' | jq . >>$LOGFILE
+done
+echo
+if [ $KEEPSESSION == false ]
+then
+        showinfo "Logging out"
+        eval $(ism_logout)
+fi
+

@@ -1,0 +1,12 @@
+#!/bin/bash
+# (c) Juergen Orth ;-)
+# $Id: ism_get_rackid 152 2022-12-18 12:03:18Z HMBJOrth $
+# for documentation see https://github.com/fujitsu/ISMtools
+#
+# Gets RackId for given Rackname
+#
+. ${0%/*}/.ism_env
+
+CheckJQ
+ism_cmd get racks |\
+	jq '.IsmBody.Racks[]|select(.Name=="'"$1"'").RackId'
