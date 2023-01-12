@@ -1,6 +1,6 @@
 :author: Jürgen Orth
 :email: Juergen.Orth@fujitsu.com
-:version: v1.0.1
+:version: v1.0.2
 
 :imagesdir: img/
 :toc: preamble
@@ -29,10 +29,10 @@ IMPORTANT: *#Please note: This toolset is provided W/O ANY WARRANTY and use at y
 
 == History
 .ChangeLog
-[options="header,footer"]
+[options="header"]
 |=================
 |Version|Date|Description|Author
-|1.0.1|2023-01-13|Initial version with a set of about 20 scripts|mailto:{email}[{Author}]
+|1.0.2|2023-01-13|Initial version with a set of about 20 scripts|mailto:{email}[{Author}]
 |=================
 
 
@@ -42,7 +42,7 @@ This toolset is intended to be used in Linux environments. Alternatively it can 
 
 Following commands are required:
 
-* https://www.gnu.org/software/bash/[Bash] (including common tools like awk, sed, grep, ...)
+* https://www.gnu.org/software/bash/[Bash] (including common tools like awk, sed, grep, host, openssl, ...)
 
 * https://curl.se/[cURL] (for talking with iRMC)
 
@@ -102,7 +102,7 @@ Displays output of `ism_show_env` and checks the connection to the ISM VA to see
 Creates an ISM session. Should be used like `eval $(ism_login)`.
 
 * <<ism_logout>> +
-Ends an ISM session. Should be used like `eval ($ism_logout)`.
+Ends an ISM session. Should be used like `eval $(ism_logout)`.
 
 * <<ism_cmd>> +
 Basic command to use the REST API. Used by all other commands. Output is native JSON.
@@ -117,13 +117,13 @@ List all firmware information in formatted JSON format.
 List all inventory information in formatted JSON format.
 
 * <<ism_list_events>> +
-List all events for a given node.
+List all events for a given node in formatted JSON format.
 
 * <<ism_list_nodes>> +
 List all node information in formatted JSON format.
 
 * <<ism_list_traps>> +
-List all traps for given node.
+List all traps for given node in formatted JSON format.
 
 * <<ism_j2c>> +
 Converts output of `ism_list_*` commands from JSON to CSV with the specified columns.
@@ -132,7 +132,7 @@ Converts output of `ism_list_*` commands from JSON to CSV with the specified col
 Displays the _NodeId_ of given node.
 
 * <<ism_get_rackid>> +
-Displays the _RackId of given rack name.
+Displays the _RackId_ of given rack name.
 
 * <<ism_get_sysrep>> +
 Creates and download ZIP file with system event log and SystemReport (XML-Format).
