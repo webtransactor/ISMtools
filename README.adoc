@@ -166,13 +166,13 @@ Deletes given ISO. Without param the command runs in interactive mode.
 ----
 #!/bin/bash
 # (c) Juergen Orth ;-)
-# $Id: .ism_env 159 2022-12-19 08:39:48Z HMBJOrth $
+# $Id: .ism_env 166 2023-01-10 11:23:42Z HMBJOrth $
 # for documentation see https://github.com/fujitsu/ISMtools
 #
 # Settings and tools for ISMtools based on bash and curl
 
 # IP, Name or FQDN of ISM VA with optional portnumber
-ISM_VA_DEFAULT=ism.customer.net:25566
+ISM_VA_DEFAULT=ism.customer.net
 # ISM VA default portnumber
 ISM_PORT_DEFAULT=25566
 # User and passwort. Format username:password
@@ -180,16 +180,16 @@ ISM_USER_DEFAULT=administrator:admin
 # Debug settings: 0=none, 1=few, 2=more, 3=much more debug output
 DEBUG_DEFAULT=0
 
-# CERT file. Must not exist,
+# CERT file. Must not exist.
 CACERT=${0%/*}/DCMA.crt
 # Default options for cURL - --silent suppresses progress bar
 CURLOPTIONS="--silent"
 # LOGFILE: to see some log output of commands
-LOGFILE=/tmp/ISMtools.log
+LOGFILE=/tmp/ISMtools-$$.log
 # OUTPUTFILE: to see some output of commands
-OUTPUTFILE=/tmp/ISMtools.out
+OUTPUTFILE=/tmp/ISMtools-$$.zip
 # TMPFILE: for temporary files
-TMPFILE=/tmp/ISMtools.$$
+TMPFILE=/tmp/ISMtools-$$
 
 ##########################################################
 # Don't change lines below
@@ -306,7 +306,7 @@ TIP: Possible tool for formatting is displayed in output of <<_ism_show_env>> at
 
 So if you have some documentation in [ISM_REST_API] like:
 
-image::REST_example_from_spec.png[REST: Example from REST API reference]
+image::REST_example_from_spec.png[alt=REST: Example from REST API referencei,width=800,align=center]
 
 then you can use `ism_cmd` in the following manner:
 
@@ -638,7 +638,7 @@ $ ism_add_server ism_nodes.csv
 
 After this the new servers should appear within 3D view:
 
-image::3Dview.png[REST: Example for new servers added by REST API]
+image::3Dview.png[alt=REST: Example for new servers added by REST API,align=center]
 
 [[ism_run_refreshnodes]]
 ==== `ism_run_refreshnodes [<filter>]`
@@ -776,7 +776,7 @@ Please enter ID that should be deleted:
 
 == Bibliography
 [bibliography]
-- [[[ISM_REST_API]]] Fujitsu. https://support.ts.fujitsu.com/IndexDownload.asp?SoftwareGuid=1BC17707-0D8A-4DDA-81B3-A06BD7E0910B[REST API Reference Manual], October 2022
+- [[[ISM_REST_API]]] Fujitsu: https://support.ts.fujitsu.com/IndexDownload.asp?SoftwareGuid=1BC17707-0D8A-4DDA-81B3-A06BD7E0910B[REST API Reference Manual], October 2022
 
 '''
 
