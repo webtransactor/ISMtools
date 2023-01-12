@@ -1,6 +1,6 @@
 :author: Jürgen Orth
 :email: Juergen.Orth@fujitsu.com
-:version: v1.0.2
+:version: v1.0.3
 
 :imagesdir: img/
 :toc: preamble
@@ -32,7 +32,8 @@ IMPORTANT: *#Please note: This toolset is provided W/O ANY WARRANTY and use at y
 [options="header"]
 |=================
 |Version|Date|Description|Author
-|1.0.2|2023-01-13|Initial version with a set of about 20 scripts|mailto:{email}[{Author}]
+|1.0.2|2023-01-11|Initial version with a set of about 20 scripts|mailto:{email}[{Author}]
+|1.0.3|2023-01-12|Added this file as PDF below dir doc|mailto:{email}[{Author}]
 |=================
 
 
