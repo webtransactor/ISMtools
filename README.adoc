@@ -779,7 +779,7 @@ Please enter ID that should be deleted:
 == Security concerns
 Even if it is possible to enter user names and passwords via commandline parameters to all commands: This should be used only in non critical environments (e.g. for testing). Otherwise this data could be read by any other user (e.g. by `ps -ef`). 
 
-The preferred and secure way to provide those critical data to the scripts is by defining those data in either `.ism_env` file, in your `~/.profile` (or `~/.bash_profile`) file or by exporting vars in your shell (e.g. export ISM_USER=_administrator:mysecretpassword_). 
+The preferred and secure way to provide those critical data to the scripts is by defining those data in either `.ism_env` file, in your `~/.profile` (or `~/.bash_profile`) file or by exporting vars in your shell (e.g. `export ISM_USER=_administrator:mysecretpassword_`). 
 
 WARNING: And of course, those files should be readable only by their owner (e.g. `chmod go-rwx .ism_env ~/.profile`)!
 
