@@ -39,6 +39,7 @@ OPTSTR="i:u:d:h"
 case $PROG in
 	ism_add_server)		PARAMOPT="[<inputfile>]";;
 	ism_list_nodes)		PARAMOPT="[filter]";;
+	ism_refresh_nodes)	PARAMOPT="[filter]";;
         ism_get_sysrep) 	PARAMOPT="[-o <outputfile> ($OUTPUTFILE)] NodeName|NodeIP|NodeSN";OPTSTR="${OPTSTR}o:";;
 	ism_get_nodeid) 	PARAMOPT="NodeName|NodeIP|NodeSN";;
 	ism_run_gfupdate)	PARAMOPT="[-s]"; OPTSTR="${OPTSTR}s";;
