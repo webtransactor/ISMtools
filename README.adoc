@@ -1,6 +1,6 @@
 :author: Jürgen Orth
 :email: Juergen.Orth@fujitsu.com
-:version: v1.0.3
+:version: v1.0.4
 
 :imagesdir: img/
 :toc: preamble
@@ -25,15 +25,16 @@ The number of tools/scripts might increase over time ...
 
 Any feedback is appreciated.
 
-IMPORTANT: *#Please note: This toolset is provided W/O ANY WARRANTY and use at your own risk!#*  
+IMPORTANT: *#Please note: This toolset is provided W/O ANY WARRANTY and is to be used at your own risk!#*  
 
 == History
 .ChangeLog
 [options="header"]
 |=================
 |Version|Date|Description|Author
-|1.0.2|2023-01-11|Initial version with a set of about 20 scripts|mailto:{email}[{Author}]
+|1.0.4|2023-02-05|Added paragraph regarding security concerns|mailto:{email}[{Author}]
 |1.0.3|2023-01-12|Added this file as PDF below dir doc|mailto:{email}[{Author}]
+|1.0.2|2023-01-11|Initial version with a set of about 20 scripts|mailto:{email}[{Author}]
 |=================
 
 
@@ -774,6 +775,13 @@ invalid ID - Try again
 Please enter ID that should be deleted:
 ... (truncated)
 ----
+
+== Security concerns
+Even if it is possible to enter user names and passwords via commandline parameters to all commands: This should be used only in non critical environments (e.g. for testing). Otherwise this data could be read by any other user (e.g. by `ps -ef`). 
+
+The preferred and secure way to provide those critical data to the scripts is by defining those data in either `.ism_env` file, in your `~/.profile` (or `~/.bash_profile`) file or by exporting vars in your shell (e.g. export ISM_USER=_administrator:mysecretpassword_). 
+
+WARNING: And of course, those files should be readable only by their owner (e.g. `chmod go-rwx .ism_env ~/.profile`)!
 
 == Bibliography
 [bibliography]
