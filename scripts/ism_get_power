@@ -1,0 +1,10 @@
+#!/bin/bash
+# (c) Gerald Rausch
+# $Id: ism_get_power 168 2023-02-11 09:05:45Z HMBJOrth $
+# for documentation see https://github.com/fujitsu/ISMtools
+
+. ${0%/*}/.ism_env
+
+[ "$1" ] || error 1 "One param is needed (IP, Name or S/N)!"
+
+ism_cmd get "nodes/$(ism_get_nodeid $1)/power" | jq -r '.IsmBody.Parts[].PowerStatus'

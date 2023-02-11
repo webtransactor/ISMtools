@@ -1,6 +1,6 @@
 :author: Jürgen Orth
 :email: Juergen.Orth@fujitsu.com
-:version: v1.0.4
+:version: v1.0.5
 
 :imagesdir: img/
 :toc: preamble
@@ -19,11 +19,11 @@ endif::[]
 
 These are some scripts/examples to automate tasks regarding ISM. Of course there are much more things possible. But you can use this toolset as a platform for own extensions.
 
-CAUTION: Please keep in mind, that the ISM advanced license is required to use the REST API <<ISM_REST_API>>!
+CAUTION: Please keep in mind, that the ISM advanced license is required to use the <<ISM_REST_API>>!
  
 The number of tools/scripts might increase over time ...
 
-Any feedback is appreciated.
+Any feedback is appreciated 😊.
 
 IMPORTANT: *#Please note: This toolset is provided W/O ANY WARRANTY and is to be used at your own risk!#*  
 
@@ -32,6 +32,7 @@ IMPORTANT: *#Please note: This toolset is provided W/O ANY WARRANTY and is to be
 [options="header"]
 |=================
 |Version|Date|Description|Author
+|1.0.5|2023-02-11|Added commands ism_get_power, ism_set_power. Thanks to contribution from Gerald Rausch.|mailto:{email}[{Author}]
 |1.0.4|2023-02-05|Added paragraph regarding security concerns|mailto:{email}[{Author}]
 |1.0.3|2023-01-12|Added this file as PDF below dir doc|mailto:{email}[{Author}]
 |1.0.2|2023-01-11|Initial version with a set of about 20 scripts|mailto:{email}[{Author}]
@@ -86,6 +87,8 @@ All scripts have a basic set of options. Some might have more options as describ
 * `-u` to enter user credentials  (overrides default in `.ism_env`)
 * `-d` to set a debug level (overrides default in `.ism_env`)
 
+WARNING: Please consider the <<security>>.
+
 Additional you can define ENV vars `ISM_VA` (ISM virtual appliance), `ISM_USER` or `DEBUG` like `export ISM_VA=myism.mydomain.net:25566`, which override defaults in `.ism_env`, too. Precedence is: Commandline option, ENV var, config file.
 
 '''
@@ -139,6 +142,12 @@ Displays the _RackId_ of given rack name.
 * <<ism_get_sysrep>> +
 Creates and download ZIP file with system event log and SystemReport (XML-Format).
 
+* <<ism_get_power>> +
+Gets the power status of a node.
+
+* <<ism_set_power>> +
+Sets the power status of a node.
+
 * <<ism_add_server>> +
 Registers servers listed in given input file.
 
@@ -168,7 +177,7 @@ Deletes given ISO. Without param the command runs in interactive mode.
 ----
 #!/bin/bash
 # (c) Juergen Orth ;-)
-# $Id: .ism_env 166 2023-01-10 11:23:42Z HMBJOrth $
+# $Id: README.adoc 168 2023-02-11 09:05:45Z HMBJOrth $
 # for documentation see https://github.com/fujitsu/ISMtools
 #
 # Settings and tools for ISMtools based on bash and curl
@@ -321,6 +330,7 @@ $ ism_cmd GET /nodes <1>
 ----
 <1> `ism_cmd get nodes` or `ism_cmd get "nodes?name=mynodename"` would also be valid examples.
 
+[[ism_list_assets]]
 ==== `ism_list_assets`
 List all assets in formatted JSON format.
 
@@ -614,6 +624,42 @@ $ ism_get_sysrep EWAL001056
 2023-01-05 10:17:06 -- Finished
 ----
 
+[[ism_get_power]]
+==== `ism_get_power <nodename>|<nodeip>|<nodesn>`
+Get the current power status of a given node. You can see an example at the `ism_set_power` command below.
+
+[[ism_set_power]]
+==== `ism_set_power <nodename>|<nodeip>|<nodesn> Shutdown|PowerOn`
+Set the current power status of a node to the given state.
+
+CAUTION: Please note: Shutdown is NOT a graceful shutdown! 
+
+[source,shell,indent=8]
+----
+$ ism_get_power RX2520M4-XXXX <1>
+Off
+
+$ ism_set_power RX2520M4-XXXX PowerOn <2>
+{
+  "SchemaType": "https://192.168.xxx.xxx:25566/ism/schema/v2/Nodes/NodesNodeIdPower-PATCH-Out.0.0.1.json",
+  "MessageInfo": [],
+  "IsmBody": {
+    "Parts": [
+      {
+        "Name": "PowerManagement",
+        "PowerStatus": "On"
+      }
+    ]
+  }
+}
+
+$ ism_get_power RX2520M4-XXXX <1>
+On
+----
+
+<1> Read the current power status
+<2> Change the power status
+
 [[ism_add_server]]
 ==== `ism_add_server [<inputfile>]`
 Registers new servers to your ISM VA. Input data is read from _inputfile_. If it is omitted then default file `ism_nodes.csv` in the same directory as the `ism_add_server` command is taken. The syntax can be seen in example below. Empty lines and such with "#" at the beginning are ignored. If you do not like to enter mounting position enter `null` for the corresponding entry.
@@ -776,6 +822,7 @@ Please enter ID that should be deleted:
 ... (truncated)
 ----
 
+[[security]]
 == Security concerns
 Even if it is possible to enter user names and passwords via commandline parameters to all commands: This should be used only in non critical environments (e.g. for testing). Otherwise this data could be read by any other user (e.g. by `ps -ef`). 
 

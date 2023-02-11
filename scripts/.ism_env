@@ -1,6 +1,6 @@
 #!/bin/bash
 # (c) Juergen Orth ;-)
-# $Id: .ism_env 166 2023-01-10 11:23:42Z HMBJOrth $
+# $Id: .ism_env 168 2023-02-11 09:05:45Z HMBJOrth $
 # for documentation see https://github.com/fujitsu/ISMtools
 #
 # Settings and tools for ISMtools based on bash and curl
@@ -37,13 +37,15 @@ export PATH=$PATH:$DIR
 PARAMOPT=""
 OPTSTR="i:u:d:h"
 case $PROG in
+	ism_cmd)		PARAMOPT="[GET|POST|PATCH|DELETE <endpoint> [<options>]]";;
 	ism_add_server)		PARAMOPT="[<inputfile>]";;
 	ism_list_nodes)		PARAMOPT="[filter]";;
-	ism_refresh_nodes)	PARAMOPT="[filter]";;
         ism_get_sysrep) 	PARAMOPT="[-o <outputfile> ($OUTPUTFILE)] NodeName|NodeIP|NodeSN";OPTSTR="${OPTSTR}o:";;
-	ism_get_nodeid) 	PARAMOPT="NodeName|NodeIP|NodeSN";;
+	ism_get_nodeid) 	PARAMOPT="<NodeName>|<NodeIP>|<NodeSN>";;
+	ism_get_power) 		PARAMOPT="<NodeName>|<NodeIP>|<NodeSN>";;
+	ism_set_power) 		PARAMOPT="<NodeName>|<NodeIP>|<NodeSN> Shutdown>|<PowerOn";;
 	ism_run_gfupdate)	PARAMOPT="[-s]"; OPTSTR="${OPTSTR}s";;
-	ism_set_thresholds) 	PARAMOPT="[Warn [Critical [Filter]]]";;
+	ism_set_thresholds) 	PARAMOPT="[<Warn> [<Critical> [<Filter>]]]";;
         *)              	PARAMOPT="";;
 esac
 
