@@ -1,6 +1,6 @@
 :author: Jürgen Orth
-:email: Juergen.Orth@fujitsu.com
-:version: v1.0.5
+:email: Juergen.Orth@Fujitsu.com
+:version: v1.0.6
 
 :imagesdir: img/
 :toc: preamble
@@ -32,7 +32,8 @@ IMPORTANT: *#Please note: This toolset is provided W/O ANY WARRANTY and is to be
 [options="header"]
 |=================
 |Version|Date|Description|Author
-|1.0.5|2023-02-11|Added commands ism_get_power, ism_set_power. Thanks to contribution from Gerald Rausch.|mailto:{email}[{Author}]
+|1.0.6|2023-02-17|Updated link to REST API reference document|mailto:{email}[{Author}]
+|1.0.5|2023-02-11|Added commands ism_get_power, ism_set_power. Thanks to contribution from mailto:Gerald.Rausch@Fujitsu.com[Gerald Rausch].|mailto:{email}[{Author}]
 |1.0.4|2023-02-05|Added paragraph regarding security concerns|mailto:{email}[{Author}]
 |1.0.3|2023-01-12|Added this file as PDF below dir doc|mailto:{email}[{Author}]
 |1.0.2|2023-01-11|Initial version with a set of about 20 scripts|mailto:{email}[{Author}]
@@ -832,7 +833,7 @@ WARNING: And of course, those files should be readable only by their owner (e.g.
 
 == Bibliography
 [bibliography]
-- [[[ISM_REST_API]]] Fujitsu: https://support.ts.fujitsu.com/IndexDownload.asp?SoftwareGuid=1BC17707-0D8A-4DDA-81B3-A06BD7E0910B[REST API Reference Manual], October 2022
+- [[[ISM_REST_API]]] Fujitsu: https://support.ts.fujitsu.com/dl?ID=1bc17707-0d8a-4dda-81b3-a06bd7e0910b[REST API Reference Manual]
 
 '''
 
