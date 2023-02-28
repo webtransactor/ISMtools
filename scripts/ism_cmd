@@ -1,6 +1,6 @@
 #!/bin/bash
 # (c) Juergen Orth ;-)
-# $Id: ism_cmd 162 2023-01-05 17:56:44Z HMBJOrth $
+# $Id: ism_cmd 170 2023-02-28 10:34:26Z HMBJOrth $
 # for documentation see https://github.com/fujitsu/ISMtools
 #
 # ism_cmd: Perform basic REST calls with GET, POST, DELETE, PATCH, ..
@@ -25,5 +25,4 @@ else
 fi
 
 debugmsg 1 $METHOD $CMD
-curl "https://${ISM_VA}/ism/api/v2/$CMD" -X ${METHOD^^} -H "$AUTH" -H "Content-Type: application/JSON; charset=UTF-8" $CERTOPT $CURLOPTIONS "$@"
-echo
+echo 'header = "'$AUTH'"' | curl "https://${ISM_VA}/ism/api/v2/$CMD" -X ${METHOD^^} -K - -H "Content-Type: application/JSON; charset=UTF-8" $CERTOPT $CURLOPTIONS "$@" | eval "$JSONCHK"

@@ -1,0 +1,8 @@
+#!/bin/bash
+# (c) Juergen Orth ;-)
+# $Id: ism_get_groupname 170 2023-02-28 10:34:26Z HMBJOrth $
+# for documentation see https://github.com/fujitsu/ISMtools
+
+. ${0%/*}/.ism_env
+
+ism_cmd get users | jq -r '.IsmBody.Users[]|select(.UserName=="'${ISM_USER%:*}'")|.UserGroups[0].UserGroupName'

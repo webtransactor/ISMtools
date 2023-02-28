@@ -1,6 +1,6 @@
 #!/bin/bash
 # (c) Juergen Orth ;-)
-# $Id: .ism_env 168 2023-02-11 09:05:45Z HMBJOrth $
+# $Id: .ism_env 171 2023-02-28 13:54:46Z HMBJOrth $
 # for documentation see https://github.com/fujitsu/ISMtools
 #
 # Settings and tools for ISMtools based on bash and curl
@@ -14,16 +14,20 @@ ISM_USER_DEFAULT=administrator:admin
 # Debug settings: 0=none, 1=few, 2=more, 3=much more debug output
 DEBUG_DEFAULT=0
 
-# CERT file. Must not exist.
+# CERT file. Doesn't matter if available.
 CACERT=${0%/*}/DCMA.crt
 # Default options for cURL - --silent suppresses progress bar
-CURLOPTIONS="--silent"
+CURLOPTIONS="--silent --show-error"
 # LOGFILE: to see some log output of commands
 LOGFILE=/tmp/ISMtools-$$.log
 # OUTPUTFILE: to see some output of commands
 OUTPUTFILE=/tmp/ISMtools-$$.zip
 # TMPFILE: for temporary files
 TMPFILE=/tmp/ISMtools-$$
+# SNAPDAYS: Period for snap files (current date -SNAPDAYS back)
+SNAPDAYS=0
+# SNAPMODE: Defines mode (full or part) of snap file
+SNAPMODE=full
 
 ##########################################################
 # Don't change lines below
@@ -40,12 +44,14 @@ case $PROG in
 	ism_cmd)		PARAMOPT="[GET|POST|PATCH|DELETE <endpoint> [<options>]]";;
 	ism_add_server)		PARAMOPT="[<inputfile>]";;
 	ism_list_nodes)		PARAMOPT="[filter]";;
-        ism_get_sysrep) 	PARAMOPT="[-o <outputfile> ($OUTPUTFILE)] NodeName|NodeIP|NodeSN";OPTSTR="${OPTSTR}o:";;
+        ism_get_sysrep) 	PARAMOPT="[-o <outputfile> ($OUTPUTFILE)] [-c] NodeName|NodeIP|NodeSN";OPTSTR="${OPTSTR}o:c";;
 	ism_get_nodeid) 	PARAMOPT="<NodeName>|<NodeIP>|<NodeSN>";;
 	ism_get_power) 		PARAMOPT="<NodeName>|<NodeIP>|<NodeSN>";;
 	ism_set_power) 		PARAMOPT="<NodeName>|<NodeIP>|<NodeSN> Shutdown>|<PowerOn";;
 	ism_run_gfupdate)	PARAMOPT="[-s]"; OPTSTR="${OPTSTR}s";;
 	ism_set_thresholds) 	PARAMOPT="[<Warn> [<Critical> [<Filter>]]]";;
+	ism_get_snap)		PARAMOPT="[-t <days> ($SNAPDAYS)] [-m part|full ($SNAPMODE)] [-c]";OPTSTR="${OPTSTR}t:m:c";;
+	ism_copy_2ds)		PARAMOPT="<file> [<file> ..]";;
         *)              	PARAMOPT="";;
 esac
 
@@ -70,6 +76,9 @@ do
                 d) DEBUG=$OPTARG;;
 		o) OUTPUTFILE=$OPTARG;;
 		s) SMARTFLAG=1;;
+		t) SNAPDAYS=$OPTARG;;
+		m) SNAPMODE=${OPTARG,,};;
+		c) C2DS=1;;
                 h) usage;;
                 ?) usage;;
         esac
@@ -95,9 +104,12 @@ else # ISM_VA looks like myism.customer.net:443
 fi
 
 # Try to create readable output
+JSONCHK=cat
 if [ -x "$(type -p jq)" ]
 then
 	JSON="jq ." 
+	JSONCHK="jq ."
+	JSONCHK="jq -c 'if .MessageInfo==[] then . else .MessageInfo[].Message|halt_error(1) end'"
 elif [ -x "$(type -p python)" ]
 then
 	JSON="python -m json.tool"
@@ -108,7 +120,7 @@ else
 	JSON=cat
 fi
 
-export ISM_VA ISM_IP ISM_FQDN ISM_USER DEBUG CACERT CURLOPTIONS LOGFILE OUTPUTFILE TMPFILE
+export ISM_VA ISM_IP ISM_FQDN ISM_USER DEBUG CACERT CURLOPTIONS LOGFILE OUTPUTFILE TMPFILE SNAPDAYS SNAPMODE C2DS
 
 # Some helper functions
 

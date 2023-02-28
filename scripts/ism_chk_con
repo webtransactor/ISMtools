@@ -1,11 +1,12 @@
 #!/bin/bash
 # (c) Juergen Orth ;-)
-# $Id: ism_chk_con 152 2022-12-18 12:03:18Z HMBJOrth $
+# $Id: ism_chk_con 169 2023-02-20 10:35:23Z HMBJOrth $
 # for documentation see https://github.com/fujitsu/ISMtools
 
 . ${0%/*}/.ism_env
 
 ism_show_env
-ism_cmd get ismva/settings | $JSON | \
-	grep -q ISMVersion && { error 0 "Connection OK"; exit 0;} || error 1 "NO Connection"
+RESULT=$(ism_cmd get ismva/settings | $JSON | jq -j 'if .MessageInfo == [] then "ISM version:  ",.IsmBody.System.ISMVersion else .MessageInfo[].Message end' )
+echo -e "\t\t\t$RESULT"
+[[ "$RESULT" =~ ISM\ version ]] && { error 0 "Connection OK"; exit 0;} || error 1 "NO Connection"
 

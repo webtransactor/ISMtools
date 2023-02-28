@@ -1,6 +1,6 @@
 :author: Jürgen Orth
 :email: Juergen.Orth@Fujitsu.com
-:version: v1.0.6
+:version: v1.0.7
 
 :imagesdir: img/
 :toc: preamble
@@ -32,13 +32,26 @@ IMPORTANT: *#Please note: This toolset is provided W/O ANY WARRANTY and is to be
 [options="header"]
 |=================
 |Version|Date|Description|Author
-|1.0.6|2023-02-17|Updated link to REST API reference document|mailto:{email}[{Author}]
-|1.0.5|2023-02-11|Added commands ism_get_power, ism_set_power. Thanks to contribution from mailto:Gerald.Rausch@Fujitsu.com[Gerald Rausch].|mailto:{email}[{Author}]
-|1.0.4|2023-02-05|Added paragraph regarding security concerns|mailto:{email}[{Author}]
-|1.0.3|2023-01-12|Added this file as PDF below dir doc|mailto:{email}[{Author}]
-|1.0.2|2023-01-11|Initial version with a set of about 20 scripts|mailto:{email}[{Author}]
+|1.0.7|2023-02-28|
+* New commands `ism_get_groupname`, `ism_get_snapfile`, `ism_copy_2ds` +
++ Security enhancement and better error handling for `ism_cmd` +
++ Additional option for `ism_get_sysrep` to upload it to Fujitsu\'s SFTP server +
++ Additional output of filesize for `ism_show_isos` (thanks to mailto:Gerald.Rausch@Fujitsu.com[Gerald Rausch]) +
+x fixed error in `ism_del_iso` (thanks to mailto:Gerald.Rausch@Fujitsu.com[Gerald Rausch])
+|mailto:{email}[{Author}]
+|1.0.6|2023-02-17|+ Updated link to REST API reference document|mailto:{email}[{Author}]
+|1.0.5|2023-02-11|* Added commands `ism_get_power`, `ism_set_power`. Thanks to contribution from mailto:Gerald.Rausch@Fujitsu.com[Gerald Rausch].|mailto:{email}[{Author}]
+|1.0.4|2023-02-05|+ Added paragraph regarding security concerns|mailto:{email}[{Author}]
+|1.0.3|2023-01-12|+ Added this file as PDF below dir doc|mailto:{email}[{Author}]
+|1.0.2|2023-01-11|- Initial version with a set of about 20 scripts|mailto:{email}[{Author}]
 |=================
 
+*Legend:* +
+* New feature +
++ Improvement +
+! Change that may require modification +
+x Bugfix +
+- Information
 
 == Installation
 === Requirements
@@ -140,6 +153,9 @@ Displays the _NodeId_ of given node.
 * <<ism_get_rackid>> +
 Displays the _RackId_ of given rack name.
 
+* <<ism_get_groupname>> +
+Displays the _groupname_ of current user.
+
 * <<ism_get_sysrep>> +
 Creates and download ZIP file with system event log and SystemReport (XML-Format).
 
@@ -178,7 +194,7 @@ Deletes given ISO. Without param the command runs in interactive mode.
 ----
 #!/bin/bash
 # (c) Juergen Orth ;-)
-# $Id: README.adoc 168 2023-02-11 09:05:45Z HMBJOrth $
+# $Id: README.adoc 171 2023-02-28 13:54:46Z HMBJOrth $
 # for documentation see https://github.com/fujitsu/ISMtools
 #
 # Settings and tools for ISMtools based on bash and curl
@@ -192,16 +208,20 @@ ISM_USER_DEFAULT=administrator:admin
 # Debug settings: 0=none, 1=few, 2=more, 3=much more debug output
 DEBUG_DEFAULT=0
 
-# CERT file. Must not exist.
+# CERT file. Doesn't matter if available.
 CACERT=${0%/*}/DCMA.crt
 # Default options for cURL - --silent suppresses progress bar
-CURLOPTIONS="--silent"
+CURLOPTIONS="--silent --show-error"
 # LOGFILE: to see some log output of commands
 LOGFILE=/tmp/ISMtools-$$.log
 # OUTPUTFILE: to see some output of commands
 OUTPUTFILE=/tmp/ISMtools-$$.zip
 # TMPFILE: for temporary files
 TMPFILE=/tmp/ISMtools-$$
+# SNAPDAYS: Period for snap files (current date -SNAPDAYS back)
+SNAPDAYS=0
+# SNAPMODE: Defines mode (full or part) of snap file
+SNAPMODE=full
 
 ##########################################################
 # Don't change lines below
@@ -582,7 +602,7 @@ $ ism_list_nodes "type=server&rackid=1" | ism_j2c '["UniqInfo","IpAddress"]' <1>
 
 [[ism_get_nodeid]]
 ==== `ism_get_nodeid <nodename>|<nodeip>|<nodesn>`
-Extracts the NodeId for then specified node. If the name contains spaces or other special characters it has to be quoted.
+Extracts the NodeId for the specified node. If the name contains spaces or other special characters it has to be quoted.
 
 [source,shell,indent=8]
 ----
@@ -600,9 +620,19 @@ $ ism_get_rackid "HQ Server Rack #1"
 9
 ----
 
+[[ism_get_groupname]]
+==== `ism_get_groupname`
+Shows the groupname for the current user. Is sometimes needed to determine file location below FTP root directory.
+
+[source,shell,indent=8]
+----
+$ ism_get_groupname
+Administrator
+----
+
 [[ism_get_sysrep]]
-==== `ism_get_sysrep [-o <outputfile>] <nodename>|<nodeip>|<nodesn>`
-Creates and downloads a System-Report ZIP file which contains the system report and the system event log (SEL). If no outputfile is given then default value _OUTPUTFILE_ defined in <<Configfile>> is used.
+==== `ism_get_sysrep [-o <outputfile>] [-c] <nodename>|<nodeip>|<nodesn>`
+Creates and downloads a System-Report ZIP file which contains the system report and the system event log (SEL). If no outputfile is given then default value _OUTPUTFILE_ defined in <<Configfile>> is used. With option `-c` the output file is copied afterwards to Fujitsu\'s SFTP server to directory `/incoming`.
 
 [source,shell,indent=8]
 ----
@@ -623,6 +653,34 @@ $ ism_get_sysrep EWAL001056
 2023-01-05 10:17:04 -- Result file /tmp/ISMtools.out (Size=39K / Type=ZIP)
 2023-01-05 10:17:04 -- Logging out
 2023-01-05 10:17:06 -- Finished
+----
+
+[[ism_get_snap]]
+==== `ism_get_snap [-t <days>] [-m part|full] [-c]`
+Creates and downloads an ISM snap file (ZIP format) that can be used for support issues. You can specify the period in _days_ of log files that should be retrieved by parameter `-t`. If no time spec is given then default value _SNAPDAYS_ defined in <<Configfile>> is used. Using `-m` option allows to define whether to generate a full or a partial snap. Default _SNAPMODE_ is defined in <<Configfile>>. With option `-c` the snap file is copied afterwards to Fujitsu\'s SFTP server to directory `/incoming`.
+
+[source,shell,indent=8]
+----
+$ ism_get_snap -m full -t 2
+2023-02-28 10:15:35 -- Log in to ISM if necessary ...
+2023-02-28 10:15:35 --    Session_Id=87d2fca86a635f4f3143f8a3aeb8b73c
+2023-02-28 10:15:35 -- Generating snapfile ...
+2023-02-28 10:15:37 --    TaskId=77 - waiting for finishing  ....................
+2023-02-28 10:17:25 --    Complete Success
+2023-02-28 10:17:30 -- Starting download of snapfile ...
+2023-02-28 10:17:30 --    Snapfile ismsnap-77-20230228101537-20230226-20230301-20230226-20230301-full.zip (Size=13M/Type=ZIP)
+2023-02-28 10:17:30 -- Logging out
+----
+
+[[ism_copy_2ds]]
+==== `ism_copy_2ds <file> [<file> ..]`
+Copies one or more files to the `/incoming` directory of Fujitsu's SFTP server. If asked you can use _ftp_ as password.
+
+[source,shell,indent=8]
+----
+$ ism_copy_2ds ismsnap-77-20230228101537-20230226-20230301-20230226-20230301-full.zip
+2023-02-28 10:45:49 -- Transferring ismsnap-77-20230228101537-20230226-20230301-20230226-20230301-full.zip to datastore.ts.fujitsu.com:/incoming/ismsnap-77-20230228101537-20230226-20230301-20230226-20230301-full.zip
+2023-02-28 10:45:53 --   done
 ----
 
 [[ism_get_power]]
@@ -786,17 +844,17 @@ Shows the ISO files that have been uploaded to ISM VA.
 [source,shell,indent=8]
 ----
 $ ism_show_isos
- ID     Filename
-===     ==============================
-9       VMware-ESXi-7.0.3.update03-19193900-Fujitsu-v530-1.iso
-2       VMware-ESXi-6.7.0-14320388-Fujitsu-v480-1.iso
-3       en_windows_server_2019_updated_april_2020_x64_dvd_12d6dc63.iso
-10      SVIM14.21.11.07.iso
-11      SLE-15-SP4-Full-x86_64-GM-Media1.iso
-5       rhel-8.0-x86_64-dvd.iso
-6       SVIM13.20.10.06.iso
-7       VMware_ESXi_7.0.0_15843807_Fujitsu_v500_1.iso
-8       VMware-ESXi-7.0.1.update01-16850804-Fujitsu-v510-1.iso
+ ID Filename                                                                MiB
+=== ==================================================================== ======
+  9 VMware-ESXi-7.0.3.update03-19193900-Fujitsu-v530-1.iso                  440
+  2 VMware-ESXi-6.7.0-14320388-Fujitsu-v480-1.iso                           376
+  3 en_windows_server_2019_updated_april_2020_x64_dvd_12d6dc63.iso         5125
+ 10 SVIM14.21.11.07.iso                                                    7493
+ 11 SLE-15-SP4-Full-x86_64-GM-Media1.iso                                  12438
+  5 rhel-8.0-x86_64-dvd.iso                                                6774
+  6 SVIM13.20.10.06.iso                                                    8117
+  7 VMware_ESXi_7.0.0_15843807_Fujitsu_v500_1.iso                           369
+  8 VMware-ESXi-7.0.1.update01-16850804-Fujitsu-v510-1.iso                  389
 ----
 
 [[ism_del_iso]]
@@ -817,9 +875,8 @@ $ ism_del_iso
   6 SVIM13.20.10.06.iso
   7 VMware_ESXi_7.0.0_15843807_Fujitsu_v500_1.iso
   8 VMware-ESXi-7.0.1.update01-16850804-Fujitsu-v510-1.iso
-Please enter ID that should be deleted: 4711
-invalid ID - Try again
-Please enter ID that should be deleted:
+Please enter ID that should be deleted (or q to quit):
+
 ... (truncated)
 ----
 

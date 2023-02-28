@@ -1,0 +1,58 @@
+#!/bin/bash
+# (c) Juergen Orth ;-)
+# $Id: ism_get_snap 171 2023-02-28 13:54:46Z HMBJOrth $
+# for documentation see https://github.com/fujitsu/ISMtools
+
+. ${0%/*}/.ism_env
+
+GenDate() { # offset_in_days
+	FMT="+%Y%m%d"
+	date $FMT -d @$(( $(date +%s) + ${1:-0}*24*3600 ))
+}
+
+showinfo Log in to ISM if necessary ...
+KEEPSESSION=false
+[ "$ISM_session" ] && KEEPSESSION=true || eval $(ism_login)
+[ "$KEEPSESSION" = true ] && showinfo "   Using Session_Id $ISM_session "
+
+showinfo "Generating ${SNAPMODE} snapfile (this will take some time) ..."
+taskid=$(ism_cmd post system/snap -d '
+	{
+	  "IsmBody": {
+	    "MaintenanceData": {
+		    "Directory": "'$(ism_get_groupname)'/ftp/",
+		    "Mode": "'${SNAPMODE^}'",
+		    "SyncMode": "Async",
+		    "Period": {
+		      "From": "'$(GenDate -$SNAPDAYS)'",
+		      "To": "'$(GenDate)'",
+		      "Offset": "+0100"
+		     }
+	    }
+	  }
+	}
+' | jq -r .IsmBody.MaintenanceData.TaskId)
+showinfo -n "   TaskId=$taskid - waiting for finishing "
+while [ "$(ism_cmd get tasks/$taskid | jq -r .IsmBody.Status)" == Running ]
+do
+        echo -n .
+        sleep 5
+done
+echo
+showinfo -n "  "
+echo $(ism_cmd get tasks/$taskid | jq -j '.IsmBody|.Status," ",.Result,"\n"')
+
+file="ftp://${ISM_VA%:*}/$(ism_get_groupname)/ftp/$(ism_cmd get system/settings/ftp/filelist | jq -r '.IsmBody.Directory[].Path' | grep ismsnap-$taskid | tail -1)"
+
+showinfo "Starting download of snapfile ..."
+echo 'user = "'$ISM_USER'"' | curl -K - -o ${file##*/} -k $CURLOPTIONS $file
+
+SIZE=$(ls -lGh ${file##*/} | awk '{print $4}')
+showinfo "   Snapfile ${file##*/} (Size=$SIZE/Type=ZIP)"
+
+if [ $KEEPSESSION == false ]
+then
+        showinfo "Logging out"
+        eval $(ism_logout)
+fi
+[ "${C2DS:-0}" -eq 1 ] && ism_copy_2ds ${file##*/}

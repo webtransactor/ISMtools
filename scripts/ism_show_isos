@@ -1,13 +1,25 @@
 #!/bin/bash
 # (c) Juergen Orth ;-)
-# $Id: ism_show_isos 158 2022-12-18 17:32:48Z HMBJOrth $
+# $Id: ism_show_isos 170 2023-02-28 10:34:26Z HMBJOrth $
 # for documentation see https://github.com/fujitsu/ISMtools
 
 . ${0%/*}/.ism_env
 
 CheckJQ
 
-echo -e " ID\tFilename"
-echo -e "===\t=============================="
-ism_cmd get system/settings/repositories/profiles |\
-	jq -j '.IsmBody.RepositoryList[]|.RepositoryId,"\t",.FileName,"\n"' 
+FMTHEAD="%3s+%-68s+%6s\n"
+FMTLINE="%3d %-68s %6d\n"
+FMTFOOT="%72s %6d\n"
+
+printf "$FMTHEAD" ID Filename MiB | tr '+' ' '
+printf "$FMTHEAD" " " | tr ' +' '= '
+
+TOTAL=0
+while read id filename filesize
+do
+	(( TOTAL += filesize/1024/1024 ))
+	printf "$FMTLINE" $id $filename $((filesize/1024/1024))
+done < <(ism_cmd get system/settings/repositories/profiles | \
+	 jq -j '.IsmBody.RepositoryList[]|
+		.RepositoryId," ",.FileName," ",.FileSize,"\n"')
+printf "$FMTFOOT" TOTAL: $TOTAL
