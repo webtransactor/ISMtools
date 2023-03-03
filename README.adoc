@@ -30,6 +30,7 @@ IMPORTANT: *#Please note: This toolset is provided W/O ANY WARRANTY and is to be
 == History
 .ChangeLog
 [options="header"]
+[cols="5%,10%,65%,20%"]
 |=================
 |Version|Date|Description|Author
 |1.0.8|2023-03-03|+ Added missing command in commandlist of README|mailto:{email}[{Author}]
