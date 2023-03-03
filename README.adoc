@@ -1,6 +1,6 @@
 :author: Jürgen Orth
 :email: Juergen.Orth@Fujitsu.com
-:version: v1.0.7
+:version: v1.0.8
 
 :imagesdir: img/
 :toc: preamble
@@ -32,6 +32,7 @@ IMPORTANT: *#Please note: This toolset is provided W/O ANY WARRANTY and is to be
 [options="header"]
 |=================
 |Version|Date|Description|Author
+|1.0.8|2023-03-03|+ Added missing command in commandlist of README|mailto:{email}[{Author}]
 |1.0.7|2023-02-28|
 * New commands `ism_get_groupname`, `ism_get_snapfile`, `ism_copy_2ds` +
 + Security enhancement and better error handling for `ism_cmd` +
@@ -157,7 +158,10 @@ Displays the _RackId_ of given rack name.
 Displays the _groupname_ of current user.
 
 * <<ism_get_sysrep>> +
-Creates and download ZIP file with system event log and SystemReport (XML-Format).
+Creates and downloads ZIP file with system event log and SystemReport from iRMC (XML-Format).
+
+* <<ism_get_snap>> +
+Creates and downloads ISM snap file (ZIP-Format).
 
 * <<ism_get_power>> +
 Gets the power status of a node.
@@ -194,7 +198,7 @@ Deletes given ISO. Without param the command runs in interactive mode.
 ----
 #!/bin/bash
 # (c) Juergen Orth ;-)
-# $Id: README.adoc 171 2023-02-28 13:54:46Z HMBJOrth $
+# $Id: README.adoc 172 2023-03-03 07:44:09Z HMBJOrth $
 # for documentation see https://github.com/fujitsu/ISMtools
 #
 # Settings and tools for ISMtools based on bash and curl
