@@ -1,6 +1,6 @@
 #!/bin/bash
 # (c) Juergen Orth ;-)
-# $Id: ism_get_snap 171 2023-02-28 13:54:46Z HMBJOrth $
+# $Id: ism_get_snap 173 2023-03-08 13:18:15Z HMBJOrth $
 # for documentation see https://github.com/fujitsu/ISMtools
 
 . ${0%/*}/.ism_env
@@ -49,6 +49,14 @@ echo 'user = "'$ISM_USER'"' | curl -K - -o ${file##*/} -k $CURLOPTIONS $file
 
 SIZE=$(ls -lGh ${file##*/} | awk '{print $4}')
 showinfo "   Snapfile ${file##*/} (Size=$SIZE/Type=ZIP)"
+
+showinfo "Deleting snapfile on ISM_VA"
+ism_cmd  post system/settings/file/delete -d '
+{
+        "IsmBody": {
+                "Path": "'${file#ftp://*/}'"
+        }
+}' | jq '.MessageInfo[].Message'
 
 if [ $KEEPSESSION == false ]
 then
