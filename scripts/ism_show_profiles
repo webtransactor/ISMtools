@@ -1,0 +1,30 @@
+#!/bin/bash
+# (c) Gerald Rausch ;-)
+# $Id: ism_show_profiles 178 2023-03-29 10:19:43Z HMBJOrth $
+# for documentation see https://github.com/fujitsu/ISMtools
+
+. ${0%/*}/.ism_env
+
+CheckJQ
+
+FMTHEAD="%3s+%-50s+%-18s+%-15s+%10s+%-20s\n"
+FMTLINE="%3d %-50s %-18s %-15s %10s %-20s\n"
+
+# Prefetch nodename and nodeip in array
+while read id nodename ipaddr
+do
+	profile_nodes[$id]="$nodename"
+	profile_ips[$id]="$ipaddr"
+done < <( ism_cmd get /nodes | jq -j '.IsmBody.Nodes[]|.NodeId," ",.Name," ",.IpAddress,"\n"')
+
+# table header
+printf "$FMTHEAD" ID Profile Node NodeIP\-iRMC Status Category | tr '+' ' '
+printf "$FMTHEAD" " " | tr ' +' '= '
+
+# print results
+while read id profile nodeid category status
+do
+	printf "$FMTLINE" "$id" "$profile" "${profile_nodes[$nodeid]:----}" "${profile_ips[$nodeid]:----}" "$status" "${category:0:20}"
+done < <(ism_cmd get "/profiles/profiles" | \
+	jq -j '.IsmBody.ProfileList[]|.ProfileId," ",.ProfileName," ",.AssignedNodeId," ",.CategoryName," ",.Status,"\n"') |\
+	 sort +4 -6 -r
