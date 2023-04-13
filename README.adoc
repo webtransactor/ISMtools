@@ -19,7 +19,7 @@ endif::[]
 
 These are some scripts/examples to automate tasks regarding ISM. Of course there are much more things possible. But you can use this toolset as a platform for own extensions.
 
-CAUTION: Please keep in mind, that the ISM advanced license is required to use the <<ISM_REST_API>>!
+CAUTION: Please keep in mind, that the ISM advanced license is required to use the <<ISM_REST_API>>! 
  
 The number of tools/scripts might increase over time ...
 
