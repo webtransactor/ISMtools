@@ -1,0 +1,36 @@
+#!/bin/bash
+# (c) Gerald Rausch ;-)
+# $Id: ism_change_pw 185 2023-05-05 08:26:39Z HMBJOrth $
+# for documentation see https://github.com/fujitsu/ISMtools
+
+# Filter can be: name, type, model, ipaddress, rackid, floorid, dcid, nodegroupid, status, alarmstatus, nodetag, uniqinfo
+
+. ${0%/*}/.ism_env
+
+# Evaluate commandline parameters
+[ "$#" -ne 2 ] && 	error 1 "exactly two arguments necessary - `basename $0` <filter> <new PASSWORD> - example: `basename $0` \"name=RX2540-1-62\" <new PASSWORD>"
+
+# Prefetch nodename in array
+while read id nodename
+do
+        node_name[$id]="$nodename"
+done < <( ism_cmd get /nodes | jq -j '.IsmBody.Nodes[]|.NodeId," ",.Name,"\n"')
+
+# encrypt new password
+ENCPW=$(ism_enc_pw "${2}")
+
+# Adjust password for Node-Asset
+ism_list_nodes "${1// /%20}" | jq '.IsmBody.Nodes[].NodeId' | while read NodeId
+do
+	showinfo Adjusting the node-password on the ISM-Site for the Node-Asset ${node_name[$NodeId]} ... 
+	ism_cmd get nodes/$NodeId/accounts | jq -r '
+		.IsmBody.Accounts[]|
+			select(.AccountType=="Ipmi" or .AccountType=="Https")|
+		.AccountId' | while read AccountId
+		do
+			JDATA=$(ism_cmd get nodes/$NodeId/accounts/$AccountId |\
+				jq '.IsmBody.Account.Password="'$ENCPW'"')
+			echo $JDATA > pw$$.out
+			ism_cmd patch nodes/$NodeId/accounts/$AccountId -d @pw$$.out >/dev/null && rm pw$$.out
+		done
+done

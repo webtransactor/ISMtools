@@ -1,6 +1,6 @@
 #!/bin/bash
 # (c) Juergen Orth ;-)
-# $Id: ism_run_gfupdate 160 2022-12-21 16:16:17Z HMBJOrth $
+# $Id: ism_run_gfupdate 185 2023-05-05 08:26:39Z HMBJOrth $
 # for documentation see https://github.com/fujitsu/ISMtools
 #
 # ism_gfupdate - Update all firmware/driver from globalflash
@@ -26,7 +26,7 @@ showinfo "Saving meta data."
 ism_cmd get system/settings/firmware/ftsfirmwarelist | \
 	sed 's/"FirmwareList":/"ComponentList":/' | $JSON >$FWLIST
 
-if [ "$SMARTFLAG" -eq 1 ]
+if [ "${SMARTFLAG:-0}" -eq 1 ]
 then
 	showinfo "Smart filtering in progress. This takes some time ..."
 	(

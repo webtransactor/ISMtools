@@ -1,6 +1,6 @@
 #!/bin/bash
 # (c) Juergen Orth ;-)
-# $Id: .ism_env 171 2023-02-28 13:54:46Z HMBJOrth $
+# $Id: .ism_env 185 2023-05-05 08:26:39Z HMBJOrth $
 # for documentation see https://github.com/fujitsu/ISMtools
 #
 # Settings and tools for ISMtools based on bash and curl
@@ -43,13 +43,14 @@ OPTSTR="i:u:d:h"
 case $PROG in
 	ism_cmd)		PARAMOPT="[GET|POST|PATCH|DELETE <endpoint> [<options>]]";;
 	ism_add_server)		PARAMOPT="[<inputfile>]";;
-	ism_list_nodes)		PARAMOPT="[filter]";;
+	ism_list_nodes)		PARAMOPT="[<filter>]";;
         ism_get_sysrep) 	PARAMOPT="[-o <outputfile> ($OUTPUTFILE)] [-c] NodeName|NodeIP|NodeSN";OPTSTR="${OPTSTR}o:c";;
 	ism_get_nodeid) 	PARAMOPT="<NodeName>|<NodeIP>|<NodeSN>";;
 	ism_get_power) 		PARAMOPT="<NodeName>|<NodeIP>|<NodeSN>";;
 	ism_set_power) 		PARAMOPT="<NodeName>|<NodeIP>|<NodeSN> Shutdown>|<PowerOn";;
+	ism_change_pw) 		PARAMOPT="<filter> <new Password>";;
 	ism_run_gfupdate)	PARAMOPT="[-s]"; OPTSTR="${OPTSTR}s";;
-	ism_set_thresholds) 	PARAMOPT="[<Warn> [<Critical> [<Filter>]]]";;
+	ism_set_thresholds) 	PARAMOPT="[<Warn> [<Critical> [<filter>]]]";;
 	ism_get_snap)		PARAMOPT="[-t <days> ($SNAPDAYS)] [-m part|full ($SNAPMODE)] [-c]";OPTSTR="${OPTSTR}t:m:c";;
 	ism_copy_2ds)		PARAMOPT="<file> [<file> ..]";;
         *)              	PARAMOPT="";;
