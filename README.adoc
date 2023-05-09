@@ -344,15 +344,12 @@ $ ism_show_env
 Used for destroying an ISM session and unsetting the session related ENV var. Usage: `eval $(ism_logout)`
 
 [[ism_change_pw]]
-==== `ism_change_pw`
-Description:                                                                                                                                          
+==== `ism_change_pw <filter> <new Password>`                                                                                                                                         
 This tool can be used if the iRMC password for the ISM connection of a server has been changed due to password guidelines - for example by the iRMC REST API tool "chpw" - and it also needs to be adjusted on the ISM.
 Recommendation: Before changing the passwords via “ism_change_pw”, a VMware snapshot of the ISM should be created so that the newly set passwords can be reset to the original passwords in certain situations.
 
-syntax:
-ism_change_pw <Filter=Value> <new Password>
-
-Examples:
+[source,shell,indent=8]
+----
 $ ism_change_pw "name=TX2550M5-1-55" <new Password>
 2023-04-05 19:09:24 -- Adjusting the node-password on the ISM-Site for the Node-Asset TX2550M5-1-55 ...
 
@@ -364,7 +361,7 @@ $ ism_change_pw "nodegroupid=10&model=PRIMERGY RX2520 M4" <new Password>
 $ ism_change_pw "nodegroupid=10&nodetag=pw-tst" <new Password>
 2023-04-05 19:06:17 -- Adjusting the node-password on the ISM-Site for the Node-Asset RX2520M4-2-63 ...
 2023-04-05 19:06:24 -- Adjusting the node-password on the ISM-Site for the Node-Asset TX2550M5-1-55 ...
-
+----
 
 [[ism_cmd]]
 ==== `ism_cmd`
