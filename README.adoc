@@ -35,6 +35,7 @@ IMPORTANT: *#Please note: This toolset is provided W/O ANY WARRANTY and is to be
 [cols="5%,10%,65%,20%"]
 |=================
 |Version|Date|Description|Author
+|1.0.15|2025-06-27|* New command `ism_list_cpu_mem` to list cpu and memory sockets of multiple servers in csv format (thanks to mailto:Gerald.Rausch@Fujitsu.com[Gerald Rausch])|mailto:{email2}[{maintainer}]
 |1.0.14|2025-06-27|* New command `ism_get_co2data` for download of CO2 data from Sustainability Monitor (thanks to mailto:michael.ahn@fujitsu.com[Michael Ahn])|mailto:{email2}[{maintainer}]
 |1.0.13|2023-05-09|+ Updated Readme for readability |mailto:{email2}[{maintainer}]
 |1.0.12|2023-05-02|* `ism_change_pw`: Added command to adjust the node-password on the ISM-Site for a Node-Asset for when the iRMC password for the ISM connection of a server has been changed due to password guidelines. (thanks to mailto:Gerald.Rausch@Fujitsu.com[Gerald Rausch])|mailto:{email}[{Author}]
@@ -153,6 +154,9 @@ List all events for a given node in formatted JSON format.
 
 * <<ism_list_nodes>> +
 List all node information in formatted JSON format.
+
+* <<ism_list_cpu_mem>> +
+Lists all CPU- or MEM-Sockets for all servers in csv format.
 
 * <<ism_list_traps>> +
 List all traps for given node in formatted JSON format.
@@ -590,6 +594,67 @@ $ ism_list_nodes "rackid=1&status=Warning" <1>
 ----
 
 <1> Please note that you have to use single or double quotes for the filter as the "&" character has a special meaning for the bash interpreter.
+
+
+[[ism_list_cpu_mem]]
+==== `ism_list_cpu_mem <cpu|mem>`
+Lists all CPU- or MEM-Sockets for all servers in csv format.
+All MEM and CPU sockets of all servers are output in CSV format. Valid arguments are "cpu" or "mem."
+
+[source,shell,indent=8]
+----
+$ ism_list_cpu_mem cpu
+"Node","Serial","CPU-Socket","Model","Cores"
+"RX2540M4-3-22","YM6D000011","CPU1",,
+"RX2540M4-3-22","YM6D000011","CPU2",,
+"TX2550M5-3-25","YM00000013","CPU1","Intel(R) Xeon(R) Gold 6226R CPU @ 2.90GHz","16"
+"TX2550M5-3-25","YM00000013","CPU2","Intel(R) Xeon(R) Gold 6226R CPU @ 2.90GHz","16"
+"rx2520m4-3-4","YMDE000003","CPU1",,
+"rx2520m4-3-4","YMDE000003","CPU2",,
+"rx2530m4-3-34","YMBGXXXXXX","CPU1","Intel(R) Xeon(R) Platinum 8180 CPU @ 2.50GHz","28"
+"rx2530m4-3-34","YMBGXXXXXX","CPU2",,
+"RX2530M4-4-25","YMBQ000026","CPU1","Intel(R) Xeon(R) Silver 4110 CPU @ 2.10GHz","8"
+"RX2530M4-4-25","YMBQ000026","CPU2","Intel(R) Xeon(R) Silver 4110 CPU @ 2.10GHz","8"
+"RX4770M5-4-29","YMAK001915","CPU1","Intel(R) Xeon(R) Platinum 8260M CPU @ 2.40GHz","24"
+"RX4770M5-4-29","YMAK001915","CPU2","Intel(R) Xeon(R) Platinum 8260M CPU @ 2.40GHz","24"
+"RX4770M5-4-29","YMAK001915","CPU3","Intel(R) Xeon(R) Platinum 8260M CPU @ 2.40GHz","24"
+"RX4770M5-4-29","YMAK001915","CPU4","Intel(R) Xeon(R) Platinum 8260M CPU @ 2.40GHz","24"
+...
+----
+[source,shell,indent=8]
+----
+$ ism_list_cpu_mem mem
+"Node","Serial","MEM-Socket","MemorySize","Frequency"
+"TX2550M5-2-25","YM00000014","DIMM-1A","16GB","2666MHz"
+"TX2550M5-2-25","YM00000014","DIMM-1B","16GB","2666MHz"
+"TX2550M5-2-25","YM00000014","DIMM-1C","128GB","2666MHz"
+"TX2550M5-2-25","YM00000014","DIMM-1D","16GB","2666MHz"
+"TX2550M5-2-25","YM00000014","DIMM-1E","16GB","2666MHz"
+"TX2550M5-2-25","YM00000014","DIMM-1F","128GB","2666MHz"
+"TX2550M5-2-25","YM00000014","DIMM-1G","16GB","2666MHz"
+"TX2550M5-2-25","YM00000014","DIMM-1H","16GB","2666MHz"
+"TX2550M5-2-25","YM00000014","DIMM-1J","128GB","2666MHz"
+"TX2550M5-2-25","YM00000014","DIMM-1K","16GB","2666MHz"
+"TX2550M5-2-25","YM00000014","DIMM-1L","16GB","2666MHz"
+"TX2550M5-2-25","YM00000014","DIMM-1M","128GB","2666MHz"
+"tx2550m4-1-18","YMCM000077","DIMM-1A","16GB","2666MHz"
+"tx2550m4-1-18","YMCM000077","DIMM-1B","16GB","2666MHz"
+"tx2550m4-1-18","YMCM000077","DIMM-1C","16GB","2666MHz"
+"tx2550m4-1-18","YMCM000077","DIMM-1D",,
+"tx2550m4-1-18","YMCM000077","DIMM-1E",,
+"tx2550m4-1-18","YMCM000077","DIMM-1F",,
+"tx2550m4-1-18","YMCM000077","DIMM-1G","16GB","2666MHz"
+"tx2550m4-1-18","YMCM000077","DIMM-1H","16GB","2666MHz"
+"tx2550m4-1-18","YMCM000077","DIMM-1J","16GB","2666MHz"
+"tx2550m4-1-18","YMCM000077","DIMM-1K",,
+"tx2550m4-1-18","YMCM000077","DIMM-1L",,
+"tx2550m4-1-18","YMCM000077","DIMM-1M",,
+...
+----
+
+
+
+
 
 [[ism_list_traps]]
 ==== `ism_list_traps <nodename>|<nodeip>|<nodesn>`
