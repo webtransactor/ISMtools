@@ -35,8 +35,8 @@ IMPORTANT: *#Please note: This toolset is provided W/O ANY WARRANTY and is to be
 [cols="5%,10%,65%,20%"]
 |=================
 |Version|Date|Description|Author
-|1.0.14|2025-06-27|* New command `ism_get_co2data` for download of CO2 data from Sustainability Monitor |mailto:{email2}[{maintainer}]
-|1.0.13|2023-05-09|+ Updated Readme for readability |mailto:{email}[{Author}]
+|1.0.14|2025-06-27|* New command `ism_get_co2data` for download of CO2 data from Sustainability Monitor (thanks to mailto:michael.ahn@fujitsu.com[Michael Ahn])|mailto:{email2}[{maintainer}]
+|1.0.13|2023-05-09|+ Updated Readme for readability |mailto:{email2}[{maintainer}]
 |1.0.12|2023-05-02|* `ism_change_pw`: Added command to adjust the node-password on the ISM-Site for a Node-Asset for when the iRMC password for the ISM connection of a server has been changed due to password guidelines. (thanks to mailto:Gerald.Rausch@Fujitsu.com[Gerald Rausch])|mailto:{email}[{Author}]
 |1.0.11|2023-03-30|- Updated description for `ism_set_power` regarding graceful shutdown (thanks to mailto:Gerald.Rausch@Fujitsu.com[Gerald Rausch])|mailto:{email}[{Author}]
 |1.0.10|2023-03-30|* `ism_show_profiles`: Added command to list all available deployment profiles in ISM. (thanks to mailto:Gerald.Rausch@Fujitsu.com[Gerald Rausch])|mailto:{email}[{Author}]
