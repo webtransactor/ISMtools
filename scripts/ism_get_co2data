@@ -1,0 +1,54 @@
+#!/bin/bash
+# (c) Michael Ahn ;-)
+# $Id$
+# for documentation see https://github.com/fujitsu/ISMtools
+
+. ${0%/*}/.ism_env
+
+
+showinfo Log in to ISM if necessary ...
+KEEPSESSION=false
+[ "$ISM_session" ] && KEEPSESSION=true || eval $(ism_login)
+[ "$KEEPSESSION" = true ] && showinfo "   Using Session_Id $ISM_session "
+
+showinfo "Generating CO2 report (this will take some time) ..."
+result=$(ism_cmd post /sustainability/co2emissions/export -d '
+	{
+	  "IsmBody": {
+	    "Export": {
+		    "DataType": "HourlyData",
+		    "TimeZone": "Europe/Berlin"
+	    }
+	  }
+	}
+')
+taskid=$(echo "$result" | jq -r .IsmBody.Export.TaskId)
+filepath=$(echo "$result" | jq -r .IsmBody.Export.Path)
+showinfo -n "   TaskId=$taskid - waiting for finishing "
+while [ "$(ism_cmd get tasks/$taskid | jq -r .IsmBody.Status)" == Running ]
+do
+        echo -n .
+        sleep 5
+done
+echo
+showinfo -n "  "
+echo $(ism_cmd get tasks/$taskid | jq -j '.IsmBody|.Status," ",.Result,"\n"')
+
+file="ftp://${ISM_VA%:*}/$filepath"
+
+showinfo "Starting download of CO2 data file ..."
+echo 'user = "'$ISM_USER'"' | curl -K - -o ${file##*/} -k $CURLOPTIONS $file
+
+csvfile=$(zipinfo -1 ${file##*/})
+showinfo "Unzipping CO2 data file ..."
+unzip -q ${file##*/} 
+rm -f ${file##*/} 
+
+SIZE=$(ls -lGh ${csvfile##*/} | awk '{print $4}')
+showinfo "   Datafile ${csvfile##*/} (Size=$SIZE/Type=CSV)"
+
+if [ $KEEPSESSION == false ]
+then
+        showinfo "Logging out"
+        eval $(ism_logout)
+fi

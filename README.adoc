@@ -33,6 +33,7 @@ IMPORTANT: *#Please note: This toolset is provided W/O ANY WARRANTY and is to be
 [cols="5%,10%,65%,20%"]
 |=================
 |Version|Date|Description|Author
+|1.0.14|2025-06-25|* New command `ism_get_co2data` for download of CO2 data from Sustainability Monitor |mailto:{email}[{Author}]
 |1.0.13|2023-05-09|+ Updated Readme for readability |mailto:{email}[{Author}]
 |1.0.12|2023-05-02|* `ism_change_pw`: Added command to adjust the node-password on the ISM-Site for a Node-Asset for when the iRMC password for the ISM connection of a server has been changed due to password guidelines. (thanks to mailto:Gerald.Rausch@Fujitsu.com[Gerald Rausch])|mailto:{email}[{Author}]
 |1.0.11|2023-03-30|- Updated description for `ism_set_power` regarding graceful shutdown (thanks to mailto:Gerald.Rausch@Fujitsu.com[Gerald Rausch])|mailto:{email}[{Author}]
@@ -171,6 +172,9 @@ Creates and downloads ZIP file with system event log and SystemReport from iRMC 
 
 * <<ism_get_snap>> +
 Creates and downloads ISM snap file (ZIP-Format).
+
+* <<ism_get_co2data>> +
+Creates and downloads CO2 data from the Sustainability Monitor (CSV-Format).
 
 * <<ism_get_power>> +
 Gets the power status of a node.
@@ -707,6 +711,23 @@ $ ism_get_snap -m full -t 2
 2023-02-28 10:17:30 --    Snapfile ismsnap-77-20230228101537-20230226-20230301-20230226-20230301-full.zip (Size=13M/Type=ZIP)
 2023-02-28 10:17:31 -- Deleting snapfile on ISM_VA
 2023-02-28 10:17:35 -- Logging out
+----
+
+[[ism_get_co2data]]
+==== `ism_get_co2data`
+Downloads the CO2 data from the Sustainability Monitor for the last 30 days as CSV file.
+
+[source,shell,indent=8]
+----
+$ ism_get_co2data
+2025-06-25 10:40:47 -- Log in to ISM if necessary ...
+2025-06-25 10:40:48 -- Generating CO2 report (this will take some time) ...
+2025-06-25 10:40:49 --    TaskId=519 - waiting for finishing  .
+2025-06-25 10:40:54 --    Complete Success
+2025-06-25 10:40:55 -- Starting download of CO2 data file ...
+2025-06-25 10:40:55 -- Unzipping CO2 data file ...
+2025-06-25 10:40:55 --    Datafile co2emissions_20250625-104049_446.csv (Size=1.9M/Type=CSV)
+2025-06-25 10:40:55 -- Logging out
 ----
 
 [[ism_copy_2ds]]
