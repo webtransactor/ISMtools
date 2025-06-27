@@ -2,7 +2,7 @@
 :email: Juergen.Orth@Fujitsu.com
 :maintainer: Justin Langosch
 :email2: justin.langosch@fujitsu.com 
-:version: v1.0.14
+:version: v1.0.15
 
 :imagesdir: img/
 :toc: preamble
