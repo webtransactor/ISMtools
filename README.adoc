@@ -849,7 +849,7 @@ On
 <2> Change the power status
 
 [[ism_get_power_consumption]]
-==== `ism_get_power_consumption <# of days> <csv>`
+==== `ism_get_power_consumption [<# of days> [csv]]`
 Get minimum, maximum and average power consumption from all nodes with type server over the last 30 days (default) or the number of days specified in the first parameter. If you add `csv` as second parameter, ouput will be in CSV format instead of a table. Nodes in maintenance mode will show all values as n/a in table output and are omitted in the CSV output.
 
 [source,indent=8]
