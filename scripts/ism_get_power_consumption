@@ -18,7 +18,9 @@ days=${1:-30}
 
 # If other metric, node type or time range is needed, it can be set here
 metric="Node PowerConsumption" 
-filter="type=server"
+filter1="type=server"
+filter2="type=server-primergycx"
+filter3="type=server-primergybx"
 start_date=$(date -u -d "$days days ago" +"%Y-%m-%dT%H:%M:%SZ")
 end_date=$(date -u -d "now" +"%Y-%m-%dT%H:%M:%SZ")
 
@@ -38,7 +40,11 @@ else
   echo " -----------------------------------------------------"
 fi
 
-ism_cmd get "nodes?$filter" | jq -j '.IsmBody.Nodes|sort_by(.Name)[]|.Name," ",.NodeId,"\n"' |
+{ 
+  ism_cmd get "nodes?$filter1" | jq -j '.IsmBody.Nodes[]|.Name," ",.NodeId,"\n"'; 
+  ism_cmd get "nodes?$filter2" | jq -j '.IsmBody.Nodes[]|.Name," ",.NodeId,"\n"';
+  ism_cmd get "nodes?$filter3" | jq -j '.IsmBody.Nodes[]|.Name," ",.NodeId,"\n"';
+} | sort |
 while read name id
 do
   ItemId=$(ism_cmd get "nodes/monitor/items?NodeId=$id" |\
