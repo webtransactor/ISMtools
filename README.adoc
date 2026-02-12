@@ -288,11 +288,11 @@ Display the current environment that would be effective when running one of `irm
 
 [source,shell,indent=8]
 ----
-$ ism_show_env -i 10.172.125.109
+$ ism_show_env -i 10.10.10.100
 2022-12-23 11:44:51 -- Effective settings:
-                        ISM_VA:       10.172.125.109:25566
-                        ISM_FQDN:     tvm-ism109.bupc-test.hmb.fsc.net.
-                        ISM_IP:       10.172.125.109
+                        ISM_VA:       10.10.10.100:25566
+                        ISM_FQDN:     ism.test.com.
+                        ISM_IP:       10.10.10.100
                         ISM_USER:     administrator:admin
                         ISM_session:
                         CACERT:       /tmp/ism/DCMA.crt
@@ -307,22 +307,22 @@ This command checks the connection. So you can see if you can use the REST API o
 
 [source,shell,indent=8]
 ----
-$ ism_chk_con -i 10.172.125.109
+$ ism_chk_con -i 10.10.10.100
 2022-12-23 11:58:51 -- Effective settings:
-                        ISM_VA:       10.172.125.109:25566
-                        ISM_FQDN:     tvm-ism109.bupc-test.hmb.fsc.net.
-                        ISM_IP:       10.172.125.109
+                        ISM_VA:       10.10.10.100:25566
+                        ISM_FQDN:     ism.test.com.
+                        ISM_IP:       10.10.10.100
                         ISM_USER:     administrator:admin
                         ISM_session:
                         CACERT:       /tmp/ism/DCMA.crt
                         JSON:         jq .
 2022-12-23 11:58:52 -- Connection OK <1>
 
-$ ism_chk_con -i 10.172.125.109 -u administrator:wrongPW
+$ ism_chk_con -i 10.10.10.100 -u administrator:wrongPW
 2022-12-23 12:03:38 -- Effective settings:
-                        ISM_VA:       10.172.125.109:25566
-                        ISM_FQDN:     tvm-ism109.bupc-test.hmb.fsc.net.
-                        ISM_IP:       10.172.125.109
+                        ISM_VA:       10.10.10.100:25566
+                        ISM_FQDN:     ism.test.com.
+                        ISM_IP:       10.10.10.100
                         ISM_USER:     administrator:wrongPW
                         ISM_session:
                         CACERT:       /tmp/ism/DCMA.crt
@@ -337,7 +337,7 @@ $ ism_chk_con -i 10.172.125.109 -u administrator:wrongPW
 Used for initiating an ISM session and setting of the required ENV var `ISM_session`. Usage: `eval $(ism_login)`. With an established session there is no need for authentication overhead when doing several requests in a row. Please notice that sessions expire after some time of inactivity!
 [source,shell,indent=8]
 ----
-$ eval $(ism_login -i 10.172.125.109)
+$ eval $(ism_login -i 10.10.10.100)
 $ ism_show_env
 2022-12-23 12:15:12 -- Effective settings:
                         ISM_VA:       ism.customer.net:25566
@@ -392,7 +392,7 @@ Example:
 [source,shell,indent=8]
 ----
 $ ism_cmd GET /nodes <1>
-{"MessageInfo":[],"SchemaType":"https://10.172.125.109:25566/ism/schema/v2/Nodes/Nodes-GET-Out.0.0.1.json","IsmBody":{"Nodes":[{"AdditionalData":{},"Fabric":[],"ParentFabricId":null,"DataCenterInfo":{"DcId":null,"Name":null},"SlotNum":null,"UpdateDate":"2022-12-23T06:44:41.931Z","ChildNodeList":[],"IpAddress":"10.172.124.85","Model":"PRIMERGY RX100 S8","Status":"Normal","Description":null,"AlarmStatus":"Warning","Type":"server","NodeGroupId":8,"NodeTagList":[],"IpVersion":"V4"
+{"MessageInfo":[],"SchemaType":"https://10.10.10.100:25566/ism/schema/v2/Nodes/Nodes-GET-Out.0.0.1.json","IsmBody":{"Nodes":[{"AdditionalData":{},"Fabric":[],"ParentFabricId":null,"DataCenterInfo":{"DcId":null,"Name":null},"SlotNum":null,"UpdateDate":"2022-12-23T06:44:41.931Z","ChildNodeList":[],"IpAddress":"10.10.124.85","Model":"PRIMERGY RX100 S8","Status":"Normal","Description":null,"AlarmStatus":"Warning","Type":"server","NodeGroupId":8,"NodeTagList":[],"IpVersion":"V4"
 ... (truncated)
 ----
 <1> `ism_cmd get nodes` or `ism_cmd get "nodes?name=mynodename"` would also be valid examples.
@@ -406,7 +406,7 @@ List all assets in formatted JSON format.
 List all inventory data in formatted JSON format.$ ism_list_assets
 {
   "MessageInfo": [],
-  "SchemaType": "https://10.172.125.85:25566/ism/schema/v2/Nodes/NodesInventory-GET-Out.0.0.1.json",
+  "SchemaType": "https://10.10.125.85:25566/ism/schema/v2/Nodes/NodesInventory-GET-Out.0.0.1.json",
   "IsmBody": {
     "Nodes": [
       {
@@ -450,7 +450,7 @@ List all firmware data in formatted JSON format. This is nearly the same as <<is
 $ ism_list_firmware
 {
   "MessageInfo": [],
-  "SchemaType": "https://10.172.125.85:25566/ism/schema/v2/Nodes/NodesInventory-GET-Out.0.0.1.json",
+  "SchemaType": "https://10.10.125.85:25566/ism/schema/v2/Nodes/NodesInventory-GET-Out.0.0.1.json",
   "IsmBody": {
     "Nodes": [
       {
@@ -497,7 +497,7 @@ List all inventory data in formatted JSON format.
 $ ism_list_inventory
 {
   "MessageInfo": [],
-  "SchemaType": "https://10.172.125.85:25566/ism/schema/v2/Nodes/NodesInventory-GET-Out.0.0.1.json",
+  "SchemaType": "https://10.10.125.85:25566/ism/schema/v2/Nodes/NodesInventory-GET-Out.0.0.1.json",
   "IsmBody": {
     "Nodes": [
       {
@@ -541,7 +541,7 @@ List all events in formatted JSON format for given node.
 ----
 $ ism_list_events EWAL001056
 {
-  "SchemaType": "https://10.172.125.85:25566/ism/schema/v2/Event/EventHistoryEventShow-GET-Out.0.0.1.json",
+  "SchemaType": "https://10.10.125.85:25566/ism/schema/v2/Event/EventHistoryEventShow-GET-Out.0.0.1.json",
   "MessageInfo": [],
   "IsmBody": {
     "Logs": [
@@ -578,7 +578,7 @@ So if you want to output all data of nodes for a given _rack id_ that are in sta
 $ ism_list_nodes "rackid=1&status=Warning" <1>
 {
   "MessageInfo": [],
-  "SchemaType": "https://10.172.125.85:25566/ism/schema/v2/Nodes/Nodes-GET-Out.0.0.1.json",
+  "SchemaType": "https://10.10.125.85:25566/ism/schema/v2/Nodes/Nodes-GET-Out.0.0.1.json",
   "IsmBody": {
     "Nodes": [
       {
@@ -665,12 +665,12 @@ List all traps in formatted JSON format for a given node.
 $ ism_list_traps EWAB001946 <1>
 {
   "MessageInfo": [],
-  "SchemaType": "https://10.172.125.85:25566/ism/schema/v2/Event/EventHistoryTrap-GET-Out.0.0.1.json",
+  "SchemaType": "https://10.10.125.85:25566/ism/schema/v2/Event/EventHistoryTrap-GET-Out.0.0.1.json",
   "IsmBody": {
     "TrapLogs": [
       {
         "TrapLogId": "3252753",
-        "TrapMessage": "Received from 10.172.126.150. Authentication failure: Unauthorized message received.",
+        "TrapMessage": "Received from 10.10.126.150. Authentication failure: Unauthorized message received.",
         "ResourceType": "Node",
         "TimeStamp": "2023-01-05T08:28:27.989Z",
         "OID": ".1.3.6.1.6.3.1.1.5.5",
@@ -693,16 +693,16 @@ Parameters `NODE`, `EVENT` etc. define example `_ColumnSpecs_` for the correspon
 $ ism_list_nodes "type=server&rackid=1" | ism_j2c '["UniqInfo","IpAddress"]' <1>
 "sep=,"
 "UniqInfo","IpAddress"
-"MACK001036","10.172.124.101"
-"EWAL001056","10.172.124.113"
-"YLNS001039","10.172.124.125"
-"YM6D024205","10.172.124.233"
-"YLVT001989","10.172.124.87"
-"YMSQ002118","10.172.124.225"
-"YM6D009446","10.172.124.145"
-"YLNV001022","10.172.124.203"
-"YMTJ001026","10.172.124.221"
-"YM6D024204","10.172.124.231"
+"MACK001036","10.10.124.101"
+"EWAL001056","10.10.124.113"
+"YLNS001039","10.10.124.125"
+"YM6D024205","10.10.124.233"
+"YLVT001989","10.10.124.87"
+"YMSQ002118","10.10.124.225"
+"YM6D009446","10.10.124.145"
+"YLNV001022","10.10.124.203"
+"YMTJ001026","10.10.124.221"
+"YM6D024204","10.10.124.231"
 ----
 
 <1> Please note the quoting which is necessary!
@@ -755,7 +755,7 @@ $ ism_get_sysrep EWAL001056
 2023-01-05 10:16:54 --    TaskId=397 - waiting for finishing
 2023-01-05 10:16:57 -- Complete Success
 2023-01-05 10:16:57 -- Create ZIP file
-2023-01-05 10:16:59 --    ZIP file=https://10.172.125.85:25566/ism/data/export/Administrator/transfer/Archive/fc045d8db0565cb83f8e1f649202cab7/download/archivedlog/397/ArchivedLog_20230105101654.zip
+2023-01-05 10:16:59 --    ZIP file=https://10.10.125.85:25566/ism/data/export/Administrator/transfer/Archive/fc045d8db0565cb83f8e1f649202cab7/download/archivedlog/397/ArchivedLog_20230105101654.zip
 2023-01-05 10:16:59 -- Download ZIP file to /tmp/ISMtools.out
 2023-01-05 10:17:04 -- Result file /tmp/ISMtools.out (Size=39K / Type=ZIP)
 2023-01-05 10:17:04 -- Logging out
@@ -852,18 +852,18 @@ Registers new servers to your ISM VA. Input data is read from _inputfile_. If it
 ----
 $ cat ism_nodes.csv
 MODEL;NAME;DESC;SERVER;USER;PW;RACK;POS;HE;TAGS
-PRIMERGY RX2540 M6;REST-Demo1;Added by script;10.172.124.223;admin;admin;9;36;2;REST-API Testserver JO
-PRIMERGY RX4770 M4;REST-Demo2;Added by script;10.172.124.247;admin;admin;9;38;2;REST-API Testserver JO
-PRIMERGY RX2530 M1;REST-Demo3;Added by script;10.172.124.147;admin;admin;9;40;1;REST-API Testserver JO
+PRIMERGY RX2540 M6;REST-Demo1;Added by script;10.10.124.223;admin;admin;9;36;2;REST-API Testserver JO
+PRIMERGY RX4770 M4;REST-Demo2;Added by script;10.10.124.247;admin;admin;9;38;2;REST-API Testserver JO
+PRIMERGY RX2530 M1;REST-Demo3;Added by script;10.10.124.147;admin;admin;9;40;1;REST-API Testserver JO
 
 $ ism_add_server ism_nodes.csv
-2023-01-05 17:18:20 -- Registering node 10.172.124.223 ... OK
+2023-01-05 17:18:20 -- Registering node 10.10.124.223 ... OK
 2023-01-05 17:18:29 -- BG-Retrieving information from NodeID 10290 ... PID=2635
 -------------------------------------------------------------------------------
-2023-01-05 17:18:30 -- Registering node 10.172.124.247 ... OK
+2023-01-05 17:18:30 -- Registering node 10.10.124.247 ... OK
 2023-01-05 17:18:38 -- BG-Retrieving information from NodeID 10291 ... PID=2671
 -------------------------------------------------------------------------------
-2023-01-05 17:18:39 -- Registering node 10.172.124.147 ... OK
+2023-01-05 17:18:39 -- Registering node 10.10.124.147 ... OK
 2023-01-05 17:18:48 -- BG-Retrieving information from NodeID 10292 ... PID=2707
 -------------------------------------------------------------------------------
 ----
@@ -882,16 +882,16 @@ This might be useful to update node infos after changes (e.g. FW) as ISM does th
 ----
 $ ism_run_refreshnodes "type=server&rackid=1"
 2023-01-05 10:29:40 -- Reading node list ...
-2023-01-05 10:29:44 -- BG refreshing NodeId 10177 (10.172.124.101) [PID=2264]
-2023-01-05 10:29:44 -- BG refreshing NodeId 10180 (10.172.124.113) [PID=2266]
-2023-01-05 10:29:44 -- BG refreshing NodeId 10181 (10.172.124.125) [PID=2269]
-2023-01-05 10:29:45 -- BG refreshing NodeId 10118 (10.172.124.233) [PID=2274]
-2023-01-05 10:29:45 -- BG refreshing NodeId 10157 (10.172.124.87) [PID=2280]
-2023-01-05 10:29:45 -- BG refreshing NodeId 10191 (10.172.124.225) [PID=2286]
-2023-01-05 10:29:46 -- BG refreshing NodeId 10192 (10.172.124.145) [PID=2293]
-2023-01-05 10:29:47 -- BG refreshing NodeId 10230 (10.172.124.203) [PID=2301]
-2023-01-05 10:29:47 -- BG refreshing NodeId 10143 (10.172.124.221) [PID=2306]
-2023-01-05 10:29:48 -- BG refreshing NodeId 10117 (10.172.124.231) [PID=2313]
+2023-01-05 10:29:44 -- BG refreshing NodeId 10177 (10.10.124.101) [PID=2264]
+2023-01-05 10:29:44 -- BG refreshing NodeId 10180 (10.10.124.113) [PID=2266]
+2023-01-05 10:29:44 -- BG refreshing NodeId 10181 (10.10.124.125) [PID=2269]
+2023-01-05 10:29:45 -- BG refreshing NodeId 10118 (10.10.124.233) [PID=2274]
+2023-01-05 10:29:45 -- BG refreshing NodeId 10157 (10.10.124.87) [PID=2280]
+2023-01-05 10:29:45 -- BG refreshing NodeId 10191 (10.10.124.225) [PID=2286]
+2023-01-05 10:29:46 -- BG refreshing NodeId 10192 (10.10.124.145) [PID=2293]
+2023-01-05 10:29:47 -- BG refreshing NodeId 10230 (10.10.124.203) [PID=2301]
+2023-01-05 10:29:47 -- BG refreshing NodeId 10143 (10.10.124.221) [PID=2306]
+2023-01-05 10:29:48 -- BG refreshing NodeId 10117 (10.10.124.231) [PID=2313]
 ----
 
 [[ism_run_gfupdate]]
@@ -914,11 +914,11 @@ $ ism_run_gfupdate -s
 2023-01-05 18:29:00 -- Smart filtering in progress. This takes some time ...
 2023-01-05 18:29:29 -- Starting download of firmware/drivers ...
 {
-  "SchemaType": "https://10.172.125.85:25566/ism/schema/v2/System/SystemSettingsFirmwareFtsFirmwareDownload-POST-Out.0.0.1.json",
+  "SchemaType": "https://10.10.125.85:25566/ism/schema/v2/System/SystemSettingsFirmwareFtsFirmwareDownload-POST-Out.0.0.1.json",
   "MessageInfo": [],
   "IsmBody": {
     "TaskId": "398",
-    "CancelUri": "https://10.172.125.85:25566/ism/api/v2/system/settings/firmware/ftsfirmware/download/cancel"
+    "CancelUri": "https://10.10.125.85:25566/ism/api/v2/system/settings/firmware/ftsfirmware/download/cancel"
   }
 }
 2023-01-05 18:29:35 -- Cleaning up.
